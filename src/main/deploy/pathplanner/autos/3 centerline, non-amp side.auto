@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.5447222323016081,
+      "y": 2.1402808519902763
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B10 shoot starting"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B20 grab first"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B30 shoot first"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B40 grab second"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B50 shoot second"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 8.035705214267571,
+        "y": 2.286875430893719
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.985497939262197,
+        "y": 1.9033853012609094
+      },
+      "isLocked": false,
+      "linkedName": "Bottom Centerline Grab Second"
+    },
+    {
+      "anchor": {
+        "x": 2.7729598316339494,
+        "y": 2.066983562538554
+      },
+      "prevControl": {
+        "x": 3.7609729744801372,
+        "y": 0.9109861449102974
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Bottom Centerline Shoot first"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": true,
+  "folder": "3 centerline, non-amp side",
+  "previewStartingState": null,
+  "useDefaultConstraints": false
+}

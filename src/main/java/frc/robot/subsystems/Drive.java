@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -44,10 +45,14 @@ public class Drive extends SubsystemBase
     //Gyro
     private static final AHRS navX = new AHRS(SPI.Port.kMXP);
 
+    //Kinematics object converts between Chassis Speeds (x, y, angle) and wheel speeds (left wheels, right wheels)
+    //Since we have tank drive, y = 0 because we can't move sideways
+    private static final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(DriveConstants.kTrackWidth);
+
     //Pose Estimator combines encoders, gyro, and optionally limelight to give a Pose2d
     //Pose2d is a combination of a Rotation2d and a Translation2d
     public static DifferentialDrivePoseEstimator m_odometry;
-
+    
     //Constructor
     public Drive()
     {
@@ -61,7 +66,7 @@ public class Drive extends SubsystemBase
 
         //Initialize the pose estimator
         m_odometry = new DifferentialDrivePoseEstimator(
-            DriveConstants.kinematics, 
+            m_kinematics, 
             navX.getRotation2d(),
             leftEncoder.getPosition(), 
             rightEncoder.getPosition(),
@@ -115,9 +120,9 @@ public class Drive extends SubsystemBase
 
     //This is a special pattern called a Consumer used in "functional programming".
     //You create it with Consumer<Type> name = (variable of type) -> {function body}
-    Consumer<ChassisSpeeds> setDriveMotors = (chassisSpeeds) -> {
+    public Consumer<ChassisSpeeds> setDriveMotors = (chassisSpeeds) -> {
         //convert the chassis speeds to wheel speeds
-        var wheelSpeeds = DriveConstants.kinematics.toWheelSpeeds(chassisSpeeds);
+        var wheelSpeeds = m_kinematics.toWheelSpeeds(chassisSpeeds);
 
         SmartDashboard.putNumber("leftVel", wheelSpeeds.leftMetersPerSecond);
         SmartDashboard.putNumber("rightVel", wheelSpeeds.rightMetersPerSecond);

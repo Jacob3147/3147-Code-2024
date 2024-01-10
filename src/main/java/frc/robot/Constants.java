@@ -17,38 +17,40 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
  */
 public final class Constants 
 {
-  public static final class DriveConstants
-  {
-    public static final int kDriverControllerPort = 0;
-
-    public static final int frontLeft_Motor_Port = 2;
-    public static final int backLeft_Motor_Port = 4;
-    public static final int frontRight_Motor_Port = 3;
-    public static final int backRight_Motor_Port = 1;
-
-    //Drive physical properties
-    public static final double kMaxSpeed = 4.4; // meters per second
-    public static final double kMaxAccel = 3.0; // meters per second per second
-    public static final double kMaxAngularSpeed = 2 * Math.PI; //rotations per second
-    public static final double kTrackWidth = 0.6858; // meters
-    public static final double kWheelDiameter = 0.1524; // meters
-    public static final double gearReduction = 8.45;
-
+    public static final double degrees_to_radians = Math.PI / 180;
     
-    public static final int kEncoderResolution = 42;
-    public static final double kEncoderDistancePerPulse = (kWheelDiameter * Math.PI)*gearReduction / ((double) kEncoderResolution);
+    public static final class DriveConstants
+    {
+        public static final int kDriverControllerPort = 0;
 
-    public static final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(kTrackWidth);
+        public static final int frontLeft_Motor_Port = 2;
+        public static final int backLeft_Motor_Port = 4;
+        public static final int frontRight_Motor_Port = 3;
+        public static final int backRight_Motor_Port = 1;
 
-    //Drive feedforward constants
-    public static final double Ks = 0.08;
-    public static final double Kv = 0.123;
-    public static final double Ka = 0.003;
+        //Drive physical properties
+        public static final double kMaxSpeed = 4.4; // meters per second
+        public static final double kMaxAccel = 3.0; // meters per second per second
+        public static final double kMaxAngularSpeed = 2 * Math.PI; //rotations per second
+        public static final double kTrackWidth = 0.6858; // meters
+        public static final double kWheelDiameter = 0.1524; // meters
+        public static final double gearReduction = 8.45;
 
-    //Drive feedback constants
-    public static final double Kp = 0.001;
-    public static final double Ki = 0;
-    public static final double Kd = 0;
-  }
+        
+        public static final int kEncoderResolution = 42;
+        public static final double kEncoderDistancePerPulse = (kWheelDiameter * Math.PI)*gearReduction / ((double) kEncoderResolution);
+
+        
+
+        //Drive feedforward constants
+        public static final double Ks = 0.08;
+        public static final double Kv = 0.123;
+        public static final double Ka = 0.003;
+
+        //Drive feedback constants
+        public static final double Kp = 0.001;
+        public static final double Ki = 0;
+        public static final double Kd = 0;
+    }
 
 }

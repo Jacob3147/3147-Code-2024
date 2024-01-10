@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.53840850538844,
+        "y": 4.104648209296419
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.03840850538844,
+        "y": 4.104648209296419
+      },
+      "isLocked": true,
+      "linkedName": "First note"
+    },
+    {
+      "anchor": {
+        "x": 2.5677274211691286,
+        "y": 4.910918393265359
+      },
+      "prevControl": {
+        "x": 3.0677274211691286,
+        "y": 4.910918393265359
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "First note shot"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": true,
+  "folder": "4 close notes",
+  "previewStartingState": null,
+  "useDefaultConstraints": false
+}

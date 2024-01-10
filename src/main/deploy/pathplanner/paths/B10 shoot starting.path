@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.5447222323016081,
+        "y": 2.1402808519902763
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.5419964361674605,
+        "y": 2.1402808519902763
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.7729598316339494,
+        "y": 2.066983562538554
+      },
+      "prevControl": {
+        "x": 2.5640724050749073,
+        "y": 2.3113865114524197
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Bottom Centerline Shoot first"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "3 centerline, non-amp side",
+  "previewStartingState": null,
+  "useDefaultConstraints": false
+}
