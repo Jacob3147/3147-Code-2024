@@ -5,6 +5,7 @@ import frc.robot.Constants.DriveConstants;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -14,6 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,6 +25,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
@@ -34,6 +37,7 @@ public class Drive extends SubsystemBase
     private static final CANSparkMax backLeft = new CANSparkMax(DriveConstants.backLeft_Motor_Port, MotorType.kBrushless);
     private static final CANSparkMax frontRight = new CANSparkMax(DriveConstants.frontRight_Motor_Port, MotorType.kBrushless);
     private static final CANSparkMax backRight = new CANSparkMax(DriveConstants.backRight_Motor_Port, MotorType.kBrushless);
+
 
     //Tank drive object
     DifferentialDrive m_drive = new DifferentialDrive(frontLeft, frontRight);
@@ -53,16 +57,24 @@ public class Drive extends SubsystemBase
     //Pose2d is a combination of a Rotation2d and a Translation2d
     public static DifferentialDrivePoseEstimator m_odometry;
     
+    PIDController leftPID;
+    PIDController rightPID;
+
+    private Field2d field = new Field2d();
+
     //Constructor
     public Drive()
     {
+
+        leftPID.setPID(DriveConstants.Kp, DriveConstants.Ki, DriveConstants.Kd);
+        rightPID.setPID(DriveConstants.Kp, DriveConstants.Ki, DriveConstants.Kd);
+        
         //Set the rear drives to follow the front drives
         backLeft.follow(frontLeft);
-        backRight.follow(frontRight);
+        backRight.follow(frontRight);                                                                                                    
 
         //Set the left side as inverted
-        frontLeft.setInverted(true);
-        backLeft.setInverted(true);
+        frontRight.setInverted(true);
 
         //Initialize the pose estimator
         m_odometry = new DifferentialDrivePoseEstimator(
@@ -75,6 +87,8 @@ public class Drive extends SubsystemBase
         //Tell the encoders how many ticks (42 ticks per Neo rotation) equals a meter
         leftEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerPulse);
         rightEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerPulse);
+        leftEncoder.setVelocityConversionFactor(DriveConstants.kEncoderDistancePerPulse/60);
+        rightEncoder.setVelocityConversionFactor(DriveConstants.kEncoderDistancePerPulse/60);
         
         //Zero the encoders
         leftEncoder.setPosition(0);
@@ -105,6 +119,9 @@ public class Drive extends SubsystemBase
             },
             this
         );
+
+        PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
+        SmartDashboard.putData("Field", field);
     }
 
     //Constantly update the odometry with the gyro and encoders. Update the dashboard
@@ -112,9 +129,9 @@ public class Drive extends SubsystemBase
     {
         m_odometry.update(navX.getRotation2d(), leftEncoder.getPosition(), -1*rightEncoder.getPosition());
 
-        SmartDashboard.putNumber("Angle", /*navX.getYaw()*/ 0);
-        SmartDashboard.putNumber("Left encoder", leftEncoder.getPosition());
-        SmartDashboard.putNumber("right encoder", -1*rightEncoder.getPosition());
+        SmartDashboard.putNumber("Angle", navX.getYaw());
+        SmartDashboard.putNumber("Left position", leftEncoder.getPosition());
+        SmartDashboard.putNumber("Right position", -1*rightEncoder.getPosition());
     }
 
 
@@ -124,13 +141,26 @@ public class Drive extends SubsystemBase
         //convert the chassis speeds to wheel speeds
         var wheelSpeeds = m_kinematics.toWheelSpeeds(chassisSpeeds);
 
-        SmartDashboard.putNumber("leftVel", wheelSpeeds.leftMetersPerSecond);
-        SmartDashboard.putNumber("rightVel", wheelSpeeds.rightMetersPerSecond);
-        double speed_to_volts = 12 / DriveConstants.kMaxSpeed;
+        double target_left_velocity = wheelSpeeds.leftMetersPerSecond;
+        double target_right_velocity = wheelSpeeds.rightMetersPerSecond;
 
-        //set the drive motors
-        frontLeft.setVoltage(speed_to_volts*wheelSpeeds.leftMetersPerSecond);
-        frontRight.setVoltage(speed_to_volts*wheelSpeeds.rightMetersPerSecond);
+        double left_PID_out;
+        double right_PID_out;
+
+        leftPID.setSetpoint(target_left_velocity);
+        rightPID.setSetpoint(target_right_velocity);
+
+        left_PID_out = leftPID.calculate(leftEncoder.getVelocity());
+        right_PID_out = rightPID.calculate(rightEncoder.getVelocity());
+
+        SmartDashboard.putNumber("Left Target", target_left_velocity);
+        SmartDashboard.putNumber("Left Velocity", leftEncoder.getVelocity());
+        SmartDashboard.putNumber("Left PID Output", left_PID_out);
+
+        frontLeft.setVoltage(left_PID_out * 12 / DriveConstants.kMaxSpeed);
+        frontRight.setVoltage(right_PID_out * 12 / DriveConstants.kMaxSpeed);
+
+        m_drive.feed();
     };
 
     //This is a special pattern called a Supplier used in "functional programming"

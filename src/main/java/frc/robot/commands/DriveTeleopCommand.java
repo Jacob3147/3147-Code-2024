@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drive;
 import frc.robot.Constants.DriveConstants;
@@ -19,8 +20,8 @@ public class DriveTeleopCommand extends Command
         this.turnSpeedGet = turnSpeedGet;
         this.m_drive = drive;
 
-        this.xLim = new SlewRateLimiter(2*DriveConstants.kMaxAccel);
-        this.turnLim = new SlewRateLimiter(2*DriveConstants.kMaxAccel);
+        this.xLim = new SlewRateLimiter(4*DriveConstants.kMaxAccel);
+        this.turnLim = new SlewRateLimiter(4*DriveConstants.kMaxAccel);
 
         addRequirements(drive);
     }
@@ -37,6 +38,8 @@ public class DriveTeleopCommand extends Command
         double xSpeed = DriveConstants.kMaxSpeed*xSpeedGet.get();
         double turnSpeed = DriveConstants.kMaxAngularSpeed*turnSpeedGet.get();
 
+        SmartDashboard.putNumber("xSpeed", xSpeed);
+        SmartDashboard.putNumber("turnspeed", turnSpeed);
         
         //Slew rate. Limits the amount the robot can accelerate
         xSpeed = xLim.calculate(xSpeed);

@@ -40,6 +40,18 @@
           "data": {
             "pathName": "B50 shoot second"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B60 Grab Third"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B70 shoot third"
+          }
         }
       ]
     }

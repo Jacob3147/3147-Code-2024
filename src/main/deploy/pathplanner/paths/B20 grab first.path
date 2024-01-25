@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.7729598316339494,
-        "y": 2.066983562538554
+        "x": 4.773704362223539,
+        "y": 1.7541231663659906
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.114915181743259,
-        "y": 1.702200697629003
+        "x": 5.115659712332848,
+        "y": 1.3893403014564396
       },
       "isLocked": false,
       "linkedName": "Bottom Centerline Shoot first"
