@@ -9,6 +9,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import java.util.function.Consumer;
@@ -16,6 +17,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,7 +25,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -37,17 +38,25 @@ public class Drive extends SubsystemBase
     private static final CANSparkMax backLeft = new CANSparkMax(DriveConstants.backLeft_Motor_Port, MotorType.kBrushless);
     private static final CANSparkMax frontRight = new CANSparkMax(DriveConstants.frontRight_Motor_Port, MotorType.kBrushless);
     private static final CANSparkMax backRight = new CANSparkMax(DriveConstants.backRight_Motor_Port, MotorType.kBrushless);
-
+    
 
     //Tank drive object
-    DifferentialDrive m_drive = new DifferentialDrive(frontLeft, frontRight);
+    DifferentialDrive m_drive;
     
     //Get the encoders from Spark Max
     private static final RelativeEncoder leftEncoder = frontLeft.getEncoder();
     private static final RelativeEncoder rightEncoder = frontRight.getEncoder();
 
+    //PID Controllers
+    private final PIDController leftPIDcontroller = new PIDController(DriveConstants.Kp, 0, 0);
+    private final PIDController rightPIDcontroller = new PIDController(DriveConstants.Kp, 0, 0);
+
+    //Feedforward Controllers
+    private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(DriveConstants.Ks, DriveConstants.Kv);
+    private final SimpleMotorFeedforward rightFeedforward = new SimpleMotorFeedforward(DriveConstants.Ks, DriveConstants.Kv);
+
     //Gyro
-    private static final AHRS navX = new AHRS(SPI.Port.kMXP);
+    private static final AHRS navX = new AHRS();
 
     //Kinematics object converts between Chassis Speeds (x, y, angle) and wheel speeds (left wheels, right wheels)
     //Since we have tank drive, y = 0 because we can't move sideways
@@ -56,18 +65,24 @@ public class Drive extends SubsystemBase
     //Pose Estimator combines encoders, gyro, and optionally limelight to give a Pose2d
     //Pose2d is a combination of a Rotation2d and a Translation2d
     public static DifferentialDrivePoseEstimator m_odometry;
-    
-    PIDController leftPID;
-    PIDController rightPID;
+
 
     private Field2d field = new Field2d();
 
     //Constructor
     public Drive()
     {
+        frontLeft.restoreFactoryDefaults();
+        frontLeft.setIdleMode(IdleMode.kCoast);
+        frontRight.restoreFactoryDefaults();
+        frontRight.setIdleMode(IdleMode.kCoast);
+        backLeft.restoreFactoryDefaults();
+        backLeft.setIdleMode(IdleMode.kCoast);
+        backRight.restoreFactoryDefaults();
+        backRight.setIdleMode(IdleMode.kCoast);
 
-        leftPID.setPID(DriveConstants.Kp, DriveConstants.Ki, DriveConstants.Kd);
-        rightPID.setPID(DriveConstants.Kp, DriveConstants.Ki, DriveConstants.Kd);
+
+        m_drive = new DifferentialDrive(frontLeft, frontRight);
         
         //Set the rear drives to follow the front drives
         backLeft.follow(frontLeft);
@@ -81,18 +96,19 @@ public class Drive extends SubsystemBase
             m_kinematics, 
             navX.getRotation2d(),
             leftEncoder.getPosition(), 
-            rightEncoder.getPosition(),
+            -rightEncoder.getPosition(),
             new Pose2d(new Translation2d(0, 0), new Rotation2d(0))); 
         
         //Tell the encoders how many ticks (42 ticks per Neo rotation) equals a meter
         leftEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerPulse);
         rightEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerPulse);
+
         leftEncoder.setVelocityConversionFactor(DriveConstants.kEncoderDistancePerPulse/60);
         rightEncoder.setVelocityConversionFactor(DriveConstants.kEncoderDistancePerPulse/60);
         
         //Zero the encoders
-        leftEncoder.setPosition(0);
-        rightEncoder.setPosition(0);
+        leftEncoder.setPosition(0.0);
+        rightEncoder.setPosition(0.0);
 
         //Reset gyro on a delay. Thread created so nothing waits on it. Delay because this constructor will be called while gyro still starting up.
         new Thread(() -> {
@@ -106,7 +122,7 @@ public class Drive extends SubsystemBase
         //This is how PathPlanner will interact with the drivetrain
         AutoBuilder.configureRamsete(
             poseSupplier,
-            poseResetter,
+            poseSetter,
             speedSupplier,
             setDriveMotors,
             new ReplanningConfig(),
@@ -132,41 +148,42 @@ public class Drive extends SubsystemBase
         SmartDashboard.putNumber("Angle", navX.getYaw());
         SmartDashboard.putNumber("Left position", leftEncoder.getPosition());
         SmartDashboard.putNumber("Right position", -1*rightEncoder.getPosition());
+        SmartDashboard.putNumber("Left velocity", leftEncoder.getVelocity());
+        SmartDashboard.putNumber("Right velocity", -1*rightEncoder.getVelocity());
     }
 
 
     //This is a special pattern called a Consumer used in "functional programming".
     //You create it with Consumer<Type> name = (variable of type) -> {function body}
+
+    //Controls the robot using chassis speeds
     public Consumer<ChassisSpeeds> setDriveMotors = (chassisSpeeds) -> {
-        //convert the chassis speeds to wheel speeds
+
+        //Convert the chassis speeds to wheel speeds
         var wheelSpeeds = m_kinematics.toWheelSpeeds(chassisSpeeds);
 
         double target_left_velocity = wheelSpeeds.leftMetersPerSecond;
         double target_right_velocity = wheelSpeeds.rightMetersPerSecond;
 
-        double left_PID_out;
-        double right_PID_out;
+        var leftFFoutput = leftFeedforward.calculate(target_left_velocity);
+        var rightFFoutput = rightFeedforward.calculate(target_right_velocity);
 
-        leftPID.setSetpoint(target_left_velocity);
-        rightPID.setSetpoint(target_right_velocity);
+        double leftPIDoutput = leftPIDcontroller.calculate(leftEncoder.getVelocity(), target_left_velocity);
+        double rightPIDoutput = rightPIDcontroller.calculate(-rightEncoder.getVelocity(), target_right_velocity);
 
-        left_PID_out = leftPID.calculate(leftEncoder.getVelocity());
-        right_PID_out = rightPID.calculate(rightEncoder.getVelocity());
-
-        SmartDashboard.putNumber("Left Target", target_left_velocity);
-        SmartDashboard.putNumber("Left Velocity", leftEncoder.getVelocity());
-        SmartDashboard.putNumber("Left PID Output", left_PID_out);
-
-        frontLeft.setVoltage(left_PID_out * 12 / DriveConstants.kMaxSpeed);
-        frontRight.setVoltage(right_PID_out * 12 / DriveConstants.kMaxSpeed);
+        frontLeft.setVoltage(leftFFoutput + leftPIDoutput);
+        frontRight.setVoltage(rightFFoutput + rightPIDoutput);
 
         m_drive.feed();
+
+        SmartDashboard.putNumber("Left target speed", target_left_velocity);
+        SmartDashboard.putNumber("Right target speed", target_right_velocity);
     };
 
     //This is a special pattern called a Supplier used in "functional programming"
     //You create it with Supplier<Type> name = () -> {return value}
     Supplier<Pose2d> poseSupplier = () -> m_odometry.getEstimatedPosition();
-    Consumer<Pose2d> poseResetter = (p) -> m_odometry.resetPosition(navX.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition(), p);
+    Consumer<Pose2d> poseSetter = (p) -> m_odometry.resetPosition(navX.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition(), p);
     Supplier<ChassisSpeeds> speedSupplier = () -> new ChassisSpeeds(leftEncoder.getVelocity(), 0, navX.getRate()*Constants.degrees_to_radians);
 
     

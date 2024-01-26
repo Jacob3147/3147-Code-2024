@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drive;
 import frc.robot.Constants.DriveConstants;
@@ -33,18 +32,22 @@ public class DriveTeleopCommand extends Command
     @Override
     public void execute() 
     {
-        //Grab joystick speeds from supplier
-        //Scale speeds from [-1, 1] to [-maxSpeed, maxSpeed]
-        double xSpeed = DriveConstants.kMaxSpeed*xSpeedGet.get();
-        double turnSpeed = DriveConstants.kMaxAngularSpeed*turnSpeedGet.get();
 
-        SmartDashboard.putNumber("xSpeed", xSpeed);
-        SmartDashboard.putNumber("turnspeed", turnSpeed);
+        //Grab joystick speeds from supplier
+        double xSpeed = xSpeedGet.get();
+        double turnSpeed = turnSpeedGet.get();
         
+        //Deadband
+        xSpeed = (Math.abs(xSpeed) < DriveConstants.kDeadband) ? 0 : xSpeed;
+        turnSpeed = (Math.abs(turnSpeed) < DriveConstants.kDeadband) ? 0 : turnSpeed;
+
+        //Scale speeds from [-1, 1] to [-maxSpeed, maxSpeed]
+        xSpeed *= DriveConstants.kMaxSpeed;
+        turnSpeed *= DriveConstants.kMaxAngularSpeed;
+
         //Slew rate. Limits the amount the robot can accelerate
         xSpeed = xLim.calculate(xSpeed);
         turnSpeed = turnLim.calculate(turnSpeed);
-
 
         //Call drive function
         m_drive.setDriveMotors.accept(new ChassisSpeeds(xSpeed, 0, turnSpeed));

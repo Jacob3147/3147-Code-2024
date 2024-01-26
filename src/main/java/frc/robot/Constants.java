@@ -5,7 +5,6 @@
 package frc.robot;
 
 
-import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -40,15 +39,12 @@ public final class Constants
         public static final int kEncoderResolution = 42;
         public static final double kEncoderDistancePerPulse = (kWheelDiameter * Math.PI)*gearReduction / ((double) kEncoderResolution);
 
-        
+        public static final double kDeadband = 0.05;
 
         //Drive feedforward constants
-        public static final double Ks = 0.08;
-        public static final double Kv = 0.123;
-        public static final double Ka = 0.003;
-
+        public static final double Kf = 0;
         //Drive feedback constants
-        public static final double Kp = 0.001;
+        public static final double Kp = 1;
         public static final double Ki = 0;
         public static final double Kd = 0;
     }
