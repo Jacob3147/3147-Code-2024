@@ -28,23 +28,25 @@ public final class Constants
         public static final int backRight_Motor_Port = 1;
 
         //Drive physical properties
-        public static final double kMaxSpeed = 4.4; // meters per second
-        public static final double kMaxAccel = 3.0; // meters per second per second
+        public static final double kMaxSpeed = 5.2; // meters per second
+        public static final double kMaxAccel = 3; // meters per second per second
         public static final double kMaxAngularSpeed = 2 * Math.PI; //rotations per second
         public static final double kTrackWidth = 0.6858; // meters
         public static final double kWheelDiameter = 0.1524; // meters
         public static final double gearReduction = 8.45;
 
         
-        public static final int kEncoderResolution = 42;
-        public static final double kEncoderDistancePerPulse = (kWheelDiameter * Math.PI)*gearReduction / ((double) kEncoderResolution);
+        public static final int kEncoderResolution = 1;
+        public static final double kEncoderDistancePerPulse = (kWheelDiameter * Math.PI) / (gearReduction * (double) kEncoderResolution);
 
         public static final double kDeadband = 0.05;
 
         //Drive feedforward constants
-        public static final double Kf = 0;
+        public static final double Ks = 0.65;
+        public static final double Kv = 2;
+        
         //Drive feedback constants
-        public static final double Kp = 1;
+        public static final double Kp = 0.5;
         public static final double Ki = 0;
         public static final double Kd = 0;
     }

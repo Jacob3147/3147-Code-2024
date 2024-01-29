@@ -89,22 +89,16 @@ public class Drive extends SubsystemBase
         backRight.follow(frontRight);                                                                                                    
 
         //Set the left side as inverted
-        frontRight.setInverted(true);
+        frontLeft.setInverted(true);
 
         //Initialize the pose estimator
         m_odometry = new DifferentialDrivePoseEstimator(
             m_kinematics, 
             navX.getRotation2d(),
-            leftEncoder.getPosition(), 
-            -rightEncoder.getPosition(),
+            getLeftEncoderPosition(), 
+            getRightEncoderPosition(),
             new Pose2d(new Translation2d(0, 0), new Rotation2d(0))); 
         
-        //Tell the encoders how many ticks (42 ticks per Neo rotation) equals a meter
-        leftEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerPulse);
-        rightEncoder.setPositionConversionFactor(DriveConstants.kEncoderDistancePerPulse);
-
-        leftEncoder.setVelocityConversionFactor(DriveConstants.kEncoderDistancePerPulse/60);
-        rightEncoder.setVelocityConversionFactor(DriveConstants.kEncoderDistancePerPulse/60);
         
         //Zero the encoders
         leftEncoder.setPosition(0.0);
@@ -135,7 +129,7 @@ public class Drive extends SubsystemBase
             },
             this
         );
-
+        
         PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
         SmartDashboard.putData("Field", field);
     }
@@ -143,13 +137,22 @@ public class Drive extends SubsystemBase
     //Constantly update the odometry with the gyro and encoders. Update the dashboard
     public void periodic() 
     {
-        m_odometry.update(navX.getRotation2d(), leftEncoder.getPosition(), -1*rightEncoder.getPosition());
+        m_odometry.update(navX.getRotation2d(), getLeftEncoderPosition(), getRightEncoderPosition());
+        SmartDashboard.putNumber("odo x", m_odometry.getEstimatedPosition().getX());
+        SmartDashboard.putNumber("odo y", m_odometry.getEstimatedPosition().getY());
+        SmartDashboard.putNumber("odo t", m_odometry.getEstimatedPosition().getRotation().getDegrees());
 
+        field.setRobotPose(m_odometry.getEstimatedPosition());
         SmartDashboard.putNumber("Angle", navX.getYaw());
-        SmartDashboard.putNumber("Left position", leftEncoder.getPosition());
-        SmartDashboard.putNumber("Right position", -1*rightEncoder.getPosition());
-        SmartDashboard.putNumber("Left velocity", leftEncoder.getVelocity());
-        SmartDashboard.putNumber("Right velocity", -1*rightEncoder.getVelocity());
+        SmartDashboard.putNumber("Left position", getLeftEncoderPosition());
+        SmartDashboard.putNumber("Right position", getRightEncoderPosition());
+        SmartDashboard.putNumber("Left velocity", getLeftEncoderVelocity());
+        SmartDashboard.putNumber("Right velocity", getRightEncoderVelocity());
+
+        SmartDashboard.putNumber("left voltage", frontLeft.getAppliedOutput());
+        SmartDashboard.putNumber("right voltage", frontRight.getAppliedOutput());
+
+        
     }
 
 
@@ -168,8 +171,8 @@ public class Drive extends SubsystemBase
         var leftFFoutput = leftFeedforward.calculate(target_left_velocity);
         var rightFFoutput = rightFeedforward.calculate(target_right_velocity);
 
-        double leftPIDoutput = leftPIDcontroller.calculate(leftEncoder.getVelocity(), target_left_velocity);
-        double rightPIDoutput = rightPIDcontroller.calculate(-rightEncoder.getVelocity(), target_right_velocity);
+        double leftPIDoutput = leftPIDcontroller.calculate(getLeftEncoderVelocity(), target_left_velocity);
+        double rightPIDoutput = rightPIDcontroller.calculate(getRightEncoderVelocity(), target_right_velocity);
 
         frontLeft.setVoltage(leftFFoutput + leftPIDoutput);
         frontRight.setVoltage(rightFFoutput + rightPIDoutput);
@@ -183,11 +186,12 @@ public class Drive extends SubsystemBase
     //This is a special pattern called a Supplier used in "functional programming"
     //You create it with Supplier<Type> name = () -> {return value}
     Supplier<Pose2d> poseSupplier = () -> m_odometry.getEstimatedPosition();
-    Consumer<Pose2d> poseSetter = (p) -> m_odometry.resetPosition(navX.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition(), p);
+    Consumer<Pose2d> poseSetter = (p) -> m_odometry.resetPosition(navX.getRotation2d(), getLeftEncoderPosition(), getRightEncoderPosition(), p);
     Supplier<ChassisSpeeds> speedSupplier = () -> new ChassisSpeeds(leftEncoder.getVelocity(), 0, navX.getRate()*Constants.degrees_to_radians);
 
-    
-    
-
+    double getLeftEncoderPosition() { return leftEncoder.getPosition() * DriveConstants.kEncoderDistancePerPulse; }
+    double getRightEncoderPosition() { return rightEncoder.getPosition() * DriveConstants.kEncoderDistancePerPulse; }
+    double getLeftEncoderVelocity() { return leftEncoder.getVelocity() * DriveConstants.kEncoderDistancePerPulse / 60; }
+    double getRightEncoderVelocity() { return rightEncoder.getVelocity() * DriveConstants.kEncoderDistancePerPulse / 60; }
         
 }

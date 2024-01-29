@@ -68,7 +68,7 @@ public class Limelight extends SubsystemBase
             botpose_limelight = new Pose2d(translation_limelight, rotation_limelight);
         }
 
-        Drive.m_odometry.addVisionMeasurement(botpose_limelight, Timer.getFPGATimestamp());
+        //Drive.m_odometry.addVisionMeasurement(botpose_limelight, Timer.getFPGATimestamp());
 
         SmartDashboard.putNumber("limelight x", translation_limelight.getX());
         SmartDashboard.putNumber("limelight y", translation_limelight.getY());
