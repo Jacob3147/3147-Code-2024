@@ -15,7 +15,9 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
@@ -24,11 +26,23 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import static edu.wpi.first.units.MutableMeasure.mutable;
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 
 
 public class Drive extends SubsystemBase
@@ -45,11 +59,12 @@ public class Drive extends SubsystemBase
     
     //Get the encoders from Spark Max
     private static final RelativeEncoder leftEncoder = frontLeft.getEncoder();
+
     private static final RelativeEncoder rightEncoder = frontRight.getEncoder();
 
     //PID Controllers
-    private final PIDController leftPIDcontroller = new PIDController(DriveConstants.Kp, 0, 0);
-    private final PIDController rightPIDcontroller = new PIDController(DriveConstants.Kp, 0, 0);
+    private final static PIDController leftPIDcontroller = new PIDController(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
+    private final static PIDController rightPIDcontroller = new PIDController(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
 
     //Feedforward Controllers
     private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(DriveConstants.Ks, DriveConstants.Kv);
@@ -73,13 +88,13 @@ public class Drive extends SubsystemBase
     public Drive()
     {
         frontLeft.restoreFactoryDefaults();
-        frontLeft.setIdleMode(IdleMode.kCoast);
+        frontLeft.setIdleMode(IdleMode.kBrake);
         frontRight.restoreFactoryDefaults();
-        frontRight.setIdleMode(IdleMode.kCoast);
+        frontRight.setIdleMode(IdleMode.kBrake);
         backLeft.restoreFactoryDefaults();
-        backLeft.setIdleMode(IdleMode.kCoast);
+        backLeft.setIdleMode(IdleMode.kBrake);
         backRight.restoreFactoryDefaults();
-        backRight.setIdleMode(IdleMode.kCoast);
+        backRight.setIdleMode(IdleMode.kBrake);
 
 
         m_drive = new DifferentialDrive(frontLeft, frontRight);
@@ -115,11 +130,11 @@ public class Drive extends SubsystemBase
     
         //This is how PathPlanner will interact with the drivetrain
         AutoBuilder.configureRamsete(
-            poseSupplier,
-            poseSetter,
-            speedSupplier,
-            setDriveMotors,
-            new ReplanningConfig(),
+            this::poseSupplier,
+            this::poseSetter,
+            this::speedSupplier,
+            this::setDriveMotors,
+            new ReplanningConfig(false, true),
             () -> {
                 var alliance = DriverStation.getAlliance();
                 if (alliance.isPresent()) {
@@ -133,11 +148,49 @@ public class Drive extends SubsystemBase
         PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
         SmartDashboard.putData("Field", field);
     }
+    
+    //I stole this code from an example online. In theory we run it to get a log file, and then put it into a tool called SysID
+    //to tell us exactly what the PID and feedforward should be
+  private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
+  private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
+  private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
+  private final SysIdRoutine m_sysIdRoutine =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(),
+          new SysIdRoutine.Mechanism(
+              (Measure<Voltage> volts) -> {
+                frontLeft.setVoltage(volts.in(Volts));
+                frontRight.setVoltage(volts.in(Volts));
+              },
+              log -> {
+                log.motor("drive-left")
+                    .voltage( m_appliedVoltage.mut_replace( frontLeft.get() * RobotController.getBatteryVoltage(), Volts))
+                    .linearPosition( m_distance.mut_replace(getLeftEncoderPosition(), Meters))
+                    .linearVelocity( m_velocity.mut_replace(getLeftEncoderVelocity(), MetersPerSecond));
+
+                log.motor("drive-right")
+                    .voltage( m_appliedVoltage.mut_replace( frontRight.get() * RobotController.getBatteryVoltage(), Volts))
+                    .linearPosition(m_distance.mut_replace(getRightEncoderPosition(), Meters))
+                    .linearVelocity( m_velocity.mut_replace(getRightEncoderVelocity(), MetersPerSecond));
+              },
+              this));
+    
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) 
+    {
+    return m_sysIdRoutine.quasistatic(direction);
+    }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) 
+  {
+    return m_sysIdRoutine.dynamic(direction);
+    }
+
 
     //Constantly update the odometry with the gyro and encoders. Update the dashboard
     public void periodic() 
     {
-        m_odometry.update(navX.getRotation2d(), getLeftEncoderPosition(), getRightEncoderPosition());
+
+        m_odometry.update(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition());
         SmartDashboard.putNumber("odo x", m_odometry.getEstimatedPosition().getX());
         SmartDashboard.putNumber("odo y", m_odometry.getEstimatedPosition().getY());
         SmartDashboard.putNumber("odo t", m_odometry.getEstimatedPosition().getRotation().getDegrees());
@@ -152,21 +205,17 @@ public class Drive extends SubsystemBase
         SmartDashboard.putNumber("left voltage", frontLeft.getAppliedOutput());
         SmartDashboard.putNumber("right voltage", frontRight.getAppliedOutput());
 
-        
     }
 
-
-    //This is a special pattern called a Consumer used in "functional programming".
-    //You create it with Consumer<Type> name = (variable of type) -> {function body}
-
     //Controls the robot using chassis speeds
-    public Consumer<ChassisSpeeds> setDriveMotors = (chassisSpeeds) -> {
+    public void setDriveMotors(ChassisSpeeds speeds)
+    {
 
         //Convert the chassis speeds to wheel speeds
-        var wheelSpeeds = m_kinematics.toWheelSpeeds(chassisSpeeds);
+        var wheelSpeeds = m_kinematics.toWheelSpeeds(speeds);
 
-        double target_left_velocity = wheelSpeeds.leftMetersPerSecond;
-        double target_right_velocity = wheelSpeeds.rightMetersPerSecond;
+        double target_left_velocity = -1*wheelSpeeds.leftMetersPerSecond;
+        double target_right_velocity = -1*wheelSpeeds.rightMetersPerSecond;
 
         var leftFFoutput = leftFeedforward.calculate(target_left_velocity);
         var rightFFoutput = rightFeedforward.calculate(target_right_velocity);
@@ -183,15 +232,25 @@ public class Drive extends SubsystemBase
         SmartDashboard.putNumber("Right target speed", target_right_velocity);
     };
 
-    //This is a special pattern called a Supplier used in "functional programming"
-    //You create it with Supplier<Type> name = () -> {return value}
-    Supplier<Pose2d> poseSupplier = () -> m_odometry.getEstimatedPosition();
-    Consumer<Pose2d> poseSetter = (p) -> m_odometry.resetPosition(navX.getRotation2d(), getLeftEncoderPosition(), getRightEncoderPosition(), p);
-    Supplier<ChassisSpeeds> speedSupplier = () -> new ChassisSpeeds(leftEncoder.getVelocity(), 0, navX.getRate()*Constants.degrees_to_radians);
+
+    Pose2d poseSupplier() { return m_odometry.getEstimatedPosition(); }
+    void poseSetter(Pose2d p) {m_odometry.resetPosition(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition(), p); }
+    ChassisSpeeds speedSupplier() { return m_kinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(-getLeftEncoderVelocity(), -getRightEncoderVelocity())); }
 
     double getLeftEncoderPosition() { return leftEncoder.getPosition() * DriveConstants.kEncoderDistancePerPulse; }
     double getRightEncoderPosition() { return rightEncoder.getPosition() * DriveConstants.kEncoderDistancePerPulse; }
     double getLeftEncoderVelocity() { return leftEncoder.getVelocity() * DriveConstants.kEncoderDistancePerPulse / 60; }
     double getRightEncoderVelocity() { return rightEncoder.getVelocity() * DriveConstants.kEncoderDistancePerPulse / 60; }
-        
+    
+    public static void setAutonPID() 
+    { 
+        leftPIDcontroller.setPID(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
+        rightPIDcontroller.setPID(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
+    }
+
+    public static void setTeleopPID()
+    {
+        leftPIDcontroller.setPID(DriveConstants.Kp_tele, DriveConstants.Ki_tele, DriveConstants.Kd_tele);
+        rightPIDcontroller.setPID(DriveConstants.Kp_tele, DriveConstants.Ki_tele, DriveConstants.Kd_tele);
+    }
 }

@@ -34,8 +34,8 @@ public class DriveTeleopCommand extends Command
     {
 
         //Grab joystick speeds from supplier
-        double xSpeed = xSpeedGet.get();
-        double turnSpeed = turnSpeedGet.get();
+        double xSpeed = -1*xSpeedGet.get();
+        double turnSpeed = -1*turnSpeedGet.get();
         
         //Deadband
         xSpeed = (Math.abs(xSpeed) < DriveConstants.kDeadband) ? 0 : xSpeed;
@@ -50,7 +50,7 @@ public class DriveTeleopCommand extends Command
         turnSpeed = turnLim.calculate(turnSpeed);
 
         //Call drive function
-        m_drive.setDriveMotors.accept(new ChassisSpeeds(xSpeed, 0, turnSpeed));
+        m_drive.setDriveMotors(new ChassisSpeeds(xSpeed, 0, turnSpeed));
 
         super.execute();
     }

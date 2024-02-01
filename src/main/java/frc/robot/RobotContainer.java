@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 
 
@@ -41,7 +43,7 @@ public class RobotContainer {
 
 
     /****** Joysticks and Joystick Suppliers ******/
-    private final XboxController m_driverController = new XboxController(0);
+    private final CommandXboxController m_driverController = new CommandXboxController(0);
     private final XboxController m_operatorController = new XboxController(1);
     Supplier<Double> xSpeedSupplier = () -> m_driverController.getLeftY();
     Supplier<Double> turnSpeedSupplier = () -> m_driverController.getRightX();
@@ -62,6 +64,11 @@ public class RobotContainer {
         SmartDashboard.putData(autoChooser);
         m_DriveSubsystem.setDefaultCommand(m_DriveCommand);
 
+
+        m_driverController.a().whileTrue( m_DriveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        m_driverController.b().whileTrue(m_DriveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        m_driverController.x().whileTrue(m_DriveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        m_driverController.y().whileTrue(m_DriveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
 
 
@@ -72,6 +79,7 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() 
     {
+        
         return autoChooser.getSelected();
     }
 }

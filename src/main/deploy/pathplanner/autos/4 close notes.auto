@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.71,
+      "x": 0.8,
       "y": 4.4
     },
-    "rotation": -60.56
+    "rotation": 120.0
   },
   "command": {
     "type": "sequential",
@@ -14,37 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A10 Grab first note"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "A20 Shoot first note"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "A30 Grab second note"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "A31 Shoot second note"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "A40 Grab third note"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "A50 Shoot third note"
+            "pathName": "first note"
           }
         }
       ]
