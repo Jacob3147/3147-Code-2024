@@ -46,13 +46,18 @@ public final class Constants
         public static final double Kv = 1.8;
         
         //Drive feedback constants
-        public static final double Kp_auto = 3;  //PID
+        public static final double Kp_auto = 1;  //PID
         public static final double Ki_auto = 0;
-        public static final double Kd_auto = 0.2;
+        public static final double Kd_auto = 0;
 
         public static final double Kp_tele = 1; 
         public static final double Ki_tele = 0;
         public static final double Kd_tele = 0.1;
+    }
+
+    public static final class IntakeConstants
+    {
+        public static final int intake_motor_port = 5;
     }
 
 }
