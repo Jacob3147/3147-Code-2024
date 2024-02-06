@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.8,
-        "y": 4.4
+        "x": 2.76,
+        "y": 6.8
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.323946116222264,
-        "y": 3.473173657297507
+        "x": 2.3743274341880762,
+        "y": 6.340373334128613
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.5635091726023904,
-        "y": 4.139730672623739
+        "x": 1.52342385444866,
+        "y": 5.5086133925236975
       },
       "prevControl": {
-        "x": 1.9315918643087957,
-        "y": 4.139730672623739
+        "x": 2.52342385444866,
+        "y": 5.5086133925236975
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "4 close pickup first note"
+      "linkedName": "fender"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": true,
+  "reversed": false,
   "folder": "4 close",
   "previewStartingState": null,
   "useDefaultConstraints": true

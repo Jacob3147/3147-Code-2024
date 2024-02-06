@@ -16,6 +16,36 @@
           "data": {
             "pathName": "first note"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "first note shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "second note grab"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "second note shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "third note grab"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "third note shoot"
+          }
         }
       ]
     }
