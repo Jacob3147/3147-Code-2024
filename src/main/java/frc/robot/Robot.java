@@ -4,10 +4,16 @@
 
 package frc.robot;
 
+
+import org.littletonrobotics.urcl.URCL;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Drive;
+import monologue.Logged;
+import monologue.Monologue;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -15,9 +21,9 @@ import frc.robot.subsystems.Drive;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+public class Robot extends TimedRobot implements Logged {
 
+  private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
 
   /**
@@ -25,7 +31,12 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
   @Override
-  public void robotInit() {
+  public void robotInit() 
+  {
+    Monologue.setupMonologue(this, "Robot", false, false);
+    URCL.start();
+    
+
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
@@ -40,6 +51,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+
+    // setFileOnly is used to shut off NetworkTables broadcasting for most logging calls.
+    // Basing this condition on the connected state of the FMS is a suggestion only.
+    Monologue.setFileOnly(DriverStation.isFMSAttached());
+    // This method needs to be called periodically, or no logging annotations will process properly.
+    Monologue.updateAll();
+
+    
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic

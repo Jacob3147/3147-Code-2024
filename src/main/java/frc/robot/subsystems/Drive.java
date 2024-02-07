@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants.DriveConstants;
+import monologue.Logged;
+import monologue.Annotations.Log;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -28,7 +30,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 
-public class Drive extends SubsystemBase
+public class Drive extends SubsystemBase implements Logged
 {
     //Drive motors. CAN IDs are set in Constants
     private static final CANSparkMax frontLeft = new CANSparkMax(DriveConstants.frontLeft_Motor_Port, MotorType.kBrushless);
@@ -62,7 +64,8 @@ public class Drive extends SubsystemBase
 
 
     private Field2d field = new Field2d();
-
+    
+    
     //Constructor
     public Drive()
     {
@@ -92,20 +95,6 @@ public class Drive extends SubsystemBase
             VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
             VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(20))); 
         
-        
-        /* 
-        //Zero the encoders
-        leftEncoder.setPosition(0.0);
-        rightEncoder.setPosition(0.0);
-
-        //Reset gyro on a delay. Thread created so nothing waits on it. Delay because this constructor will be called while gyro still starting up.
-        new Thread(() -> {
-            try 
-            {
-                Thread.sleep(1000);
-                navX.reset();
-            } catch(Exception e) {}
-        }).start();*/
     
         //This is how PathPlanner will interact with the drivetrain
         AutoBuilder.configureLTV(
@@ -127,16 +116,22 @@ public class Drive extends SubsystemBase
         //put the trajectory onto the fake field
         PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
         SmartDashboard.putData("Field", field);
+        
+        PathPlannerLogging.setLogActivePathCallback((activePath) -> this.log("Auto Path", activePath.toArray(new Pose2d[activePath.size()])));
+        PathPlannerLogging.setLogTargetPoseCallback((targetPose) -> this.log("Trajectory Setpoint", targetPose));
     }
+
 
 
 
     //Constantly update the odometry with the gyro and encoders. Update the dashboard
     public void periodic() 
     {
+        
         m_odometry.update(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition());
         field.setRobotPose(m_odometry.getEstimatedPosition());
 
+        
 
         SmartDashboard.putNumber("odo x", m_odometry.getEstimatedPosition().getX());
         SmartDashboard.putNumber("odo y", m_odometry.getEstimatedPosition().getY());
@@ -165,23 +160,27 @@ public class Drive extends SubsystemBase
         double leftPIDoutput = leftPIDcontroller.calculate(getLeftEncoderVelocity(), target_left_velocity);
         double rightPIDoutput = rightPIDcontroller.calculate(getRightEncoderVelocity(), target_right_velocity);
 
-
+        
         frontLeft.setVoltage(leftFFoutput + leftPIDoutput);
         frontRight.setVoltage(rightFFoutput + rightPIDoutput);
+
 
         SmartDashboard.putNumber("Left target speed", target_left_velocity);
         SmartDashboard.putNumber("Right target speed", target_right_velocity);
     };
 
+    @Log Pose2d poseSupplier() { return m_odometry.getEstimatedPosition(); }
 
-    Pose2d poseSupplier() { return m_odometry.getEstimatedPosition(); }
     void poseSetter(Pose2d p) {m_odometry.resetPosition(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition(), p); }
-    ChassisSpeeds speedSupplier() { return m_kinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(-getLeftEncoderVelocity(), -getRightEncoderVelocity())); }
 
-    double getLeftEncoderPosition() { return leftEncoder.getPosition() * DriveConstants.kEncoderDistancePerPulse; }
-    double getRightEncoderPosition() { return rightEncoder.getPosition() * DriveConstants.kEncoderDistancePerPulse; }
-    double getLeftEncoderVelocity() { return leftEncoder.getVelocity() * DriveConstants.kEncoderDistancePerPulse / 60; }
-    double getRightEncoderVelocity() { return rightEncoder.getVelocity() * DriveConstants.kEncoderDistancePerPulse / 60; }
+    @Log ChassisSpeeds speedSupplier() { return m_kinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(-getLeftEncoderVelocity(), -getRightEncoderVelocity())); }
+
+    @Log double getLeftEncoderPosition() { return leftEncoder.getPosition() * DriveConstants.kEncoderDistancePerPulse; }
+    @Log double getRightEncoderPosition() { return rightEncoder.getPosition() * DriveConstants.kEncoderDistancePerPulse; }
+    @Log double getLeftEncoderVelocity() { return leftEncoder.getVelocity() * DriveConstants.kEncoderDistancePerPulse / 60; }
+    @Log double getRightEncoderVelocity() { return rightEncoder.getVelocity() * DriveConstants.kEncoderDistancePerPulse / 60; }
+
+    @Log Rotation2d getGyro() { return navX.getRotation2d(); }
     
     public static void setAutonPID() 
     { 

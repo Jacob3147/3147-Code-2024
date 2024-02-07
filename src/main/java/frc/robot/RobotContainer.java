@@ -7,7 +7,7 @@ package frc.robot;
 import frc.robot.Constants;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Arm;
+
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
@@ -17,15 +17,10 @@ import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 
 
@@ -36,7 +31,6 @@ public class RobotContainer {
     /****** Subsystems ******/
     private final Drive m_DriveSubsystem = new Drive();
     private final Limelight m_LimelightSubsystem = new Limelight();
-    private final Arm m_ArmSubsystem = new Arm();
     private final Climber m_ClimberSubsystem = new Climber();
     private final Intake m_IntakeSubsystem = new Intake();
     private final Shooter m_ShooterSubsystem = new Shooter();
@@ -60,7 +54,7 @@ public class RobotContainer {
     public RobotContainer() 
     {
         autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData(autoChooser);
+        
         
         m_DriveSubsystem.setDefaultCommand(m_DriveCommand);
 

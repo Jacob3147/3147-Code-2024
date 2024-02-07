@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2024.1.1"
+    id "edu.wpi.first.GradleRIO" version "2024.2.1"
 }
 
 java {
@@ -39,6 +39,10 @@ deploy {
     }
 }
 
+repositories {
+  maven { url 'https://jitpack.io' }
+}
+
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 
 // Set to true to use debug for JNI.
@@ -46,6 +50,7 @@ wpi.java.debugJni = false
 
 // Set this to true to enable desktop support.
 def includeDesktopSupport = false
+
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
@@ -69,6 +74,8 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'com.github.shueja:Monologue:v1.0.0-beta5'
 }
 
 test {
