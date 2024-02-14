@@ -60,4 +60,18 @@ public final class Constants
         public static final int intake_motor_port = 5;
     }
 
+    public static final class ShooterConstants
+    {
+        public static final int top_motor_port = 6;
+        public static final int bottom_motor_port = 7;
+    }
+
+    public static final class LimelightConstants
+    {
+        public static final String limelight_1_name = "limelight-front";
+        public static final String limelight_2_name = "limelight-rear";
+        public static final double tolerance = 0.3; //reject any limelight pose jumps greater than this (meters)
+
+    }
+
 }

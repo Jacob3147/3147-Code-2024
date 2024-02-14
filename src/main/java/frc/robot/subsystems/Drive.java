@@ -46,6 +46,7 @@ public class Drive extends SubsystemBase implements Logged
     //PID Controllers
     private final static PIDController leftPIDcontroller = new PIDController(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
     private final static PIDController rightPIDcontroller = new PIDController(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
+    private final static PIDController anglePID = new PIDController(0.04,0.02,0.0);
 
     //Feedforward Controllers
     private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(DriveConstants.Ks, DriveConstants.Kv);
@@ -93,7 +94,7 @@ public class Drive extends SubsystemBase implements Logged
             -getRightEncoderPosition(),
             new Pose2d(new Translation2d(5, 5), new Rotation2d(0)),
             VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
-            VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(20))); 
+            VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10))); 
         
     
         //This is how PathPlanner will interact with the drivetrain
@@ -169,7 +170,21 @@ public class Drive extends SubsystemBase implements Logged
         SmartDashboard.putNumber("Right target speed", target_right_velocity);
     };
 
-    @Log Pose2d poseSupplier() { return m_odometry.getEstimatedPosition(); }
+    public boolean turnToAngle(double angle)
+    {
+        anglePID.enableContinuousInput(-180,180);
+        anglePID.setTolerance(2);
+        double turnRate = anglePID.calculate(poseSupplier().getRotation().getDegrees(), angle);
+        turnRate = turnRate > DriveConstants.kMaxAngularSpeed ? DriveConstants.kMaxAngularSpeed : turnRate;
+        
+        setDriveMotors(new ChassisSpeeds(0, 0, turnRate));
+
+        SmartDashboard.putNumber("Target Angle", angle);
+        SmartDashboard.putNumber("Input angle", poseSupplier().getRotation().getDegrees());
+        return anglePID.atSetpoint();
+    }
+
+    @Log public Pose2d poseSupplier() { return m_odometry.getEstimatedPosition(); }
 
     void poseSetter(Pose2d p) {m_odometry.resetPosition(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition(), p); }
 
@@ -193,6 +208,8 @@ public class Drive extends SubsystemBase implements Logged
         leftPIDcontroller.setPID(DriveConstants.Kp_tele, DriveConstants.Ki_tele, DriveConstants.Kd_tele);
         rightPIDcontroller.setPID(DriveConstants.Kp_tele, DriveConstants.Ki_tele, DriveConstants.Kd_tele);
     }
+
+    
 
 
 }

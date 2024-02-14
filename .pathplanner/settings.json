@@ -3,8 +3,10 @@
   "robotLength": 0.94,
   "holonomicMode": false,
   "pathFolders": [
-    "3 centerline, non-amp side",
-    "4 close"
+    "3 centerline, amp side",
+    "3 centerline, source side",
+    "4 close, long shot",
+    "4 close, subwoofer"
   ],
   "autoFolders": [],
   "defaultMaxVel": 2.0,

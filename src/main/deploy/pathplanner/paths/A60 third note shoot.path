@@ -3,37 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.035705214267571,
-        "y": 2.286875430893719
+        "x": 2.76,
+        "y": 6.8
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.985497939262197,
-        "y": 1.9033853012609094
+        "x": 2.3743274341880762,
+        "y": 6.340373334128613
       },
       "isLocked": false,
-      "linkedName": "Bottom Centerline Grab Second"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.773704362223539,
-        "y": 1.7541231663659906
+        "x": 1.52342385444866,
+        "y": 5.5086133925236975
       },
       "prevControl": {
-        "x": 5.7617175050697265,
-        "y": 0.598125748737734
+        "x": 2.52342385444866,
+        "y": 5.5086133925236975
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Bottom Centerline Shoot first"
+      "linkedName": "fender"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
@@ -42,8 +42,8 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": true,
-  "folder": "3 centerline, source side",
+  "reversed": false,
+  "folder": "4 close, subwoofer",
   "previewStartingState": null,
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
