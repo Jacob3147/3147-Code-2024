@@ -26,6 +26,7 @@ public class Robot extends TimedRobot implements Logged {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
 
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -33,6 +34,7 @@ public class Robot extends TimedRobot implements Logged {
   @Override
   public void robotInit() 
   {
+    
     Monologue.setupMonologue(this, "Robot", false, false);
     URCL.start();
     
@@ -58,7 +60,6 @@ public class Robot extends TimedRobot implements Logged {
     // This method needs to be called periodically, or no logging annotations will process properly.
     Monologue.updateAll();
 
-    
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -71,7 +72,10 @@ public class Robot extends TimedRobot implements Logged {
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() 
+  {
+    
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -123,4 +127,5 @@ public class Robot extends TimedRobot implements Logged {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
+
 }

@@ -9,13 +9,13 @@ public class SpinDownCommand extends Command
     public SpinDownCommand(Shooter shooter)   
     {
         m_shooter = shooter;
+        addRequirements(m_shooter);
     } 
 
     @Override
     public void initialize() 
     {
-        end(false);
-        //m_shooter.spinDown();
+        m_shooter.spinDown();
     }
     
     @Override

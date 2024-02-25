@@ -10,17 +10,23 @@ public class IntakeCommand extends Command
     public IntakeCommand(Intake intake)
     {
         m_intake = intake;
+        addRequirements(m_intake);
     }
 
     @Override
     public void execute() 
     {
-        
+        m_intake.runFwd();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return m_intake.haveNote(); 
     }
 
     @Override
     public void end(boolean interrupted) 
     {
-        
+        m_intake.stop();
     }
 }

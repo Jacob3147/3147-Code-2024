@@ -52,7 +52,7 @@ public class DriveTeleopCommand extends Command
         //Call drive function
         m_drive.setDriveMotors(new ChassisSpeeds(xSpeed, 0, turnSpeed));
 
-        super.execute();
+        
     }
     
 

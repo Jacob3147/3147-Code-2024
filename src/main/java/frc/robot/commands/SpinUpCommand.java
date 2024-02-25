@@ -9,19 +9,24 @@ public class SpinUpCommand extends Command
     public SpinUpCommand(Shooter shooter)   
     {
         m_shooter = shooter;
+        addRequirements(m_shooter);
     } 
 
     @Override
     public void initialize() 
     {
-        end(false);
-        //m_shooter.spinUp();
+        m_shooter.spinUp();
     }
     
     @Override
     public boolean isFinished() 
     {
-        return true;
+        return m_shooter.shooterAtSpeed();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        
     }
 
 }

@@ -25,8 +25,11 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.LimelightConstants;
+import frc.robot.utility.Vision;
 
 
 
@@ -63,9 +66,9 @@ public class Drive extends SubsystemBase implements Logged
     //Pose2d is a combination of a Rotation2d and a Translation2d
     public static DifferentialDrivePoseEstimator m_odometry;
 
-
     private Field2d field = new Field2d();
     
+    int counter = 0;
     
     //Constructor
     public Drive()
@@ -78,7 +81,7 @@ public class Drive extends SubsystemBase implements Logged
         backLeft.setIdleMode(IdleMode.kBrake);
         backRight.restoreFactoryDefaults();
         backRight.setIdleMode(IdleMode.kBrake);
-        
+
         //Set the rear drives to follow the front drives
         backLeft.follow(frontLeft);
         backRight.follow(frontRight);                                                                                                    
@@ -128,12 +131,19 @@ public class Drive extends SubsystemBase implements Logged
     //Constantly update the odometry with the gyro and encoders. Update the dashboard
     public void periodic() 
     {
+        //run limelight check every 5 cycles (100ms)
+        if(counter++ == 4)
+        {
+            counter = 0;
+            Vision.EvaluateLimelightNew(LimelightConstants.limelight_1_name);
+            Vision.EvaluateLimelightNew(LimelightConstants.limelight_2_name);
+        }
         
+
         m_odometry.update(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition());
         field.setRobotPose(m_odometry.getEstimatedPosition());
 
         
-
         SmartDashboard.putNumber("odo x", m_odometry.getEstimatedPosition().getX());
         SmartDashboard.putNumber("odo y", m_odometry.getEstimatedPosition().getY());
         SmartDashboard.putNumber("odo t", m_odometry.getEstimatedPosition().getRotation().getDegrees());
@@ -164,10 +174,6 @@ public class Drive extends SubsystemBase implements Logged
         
         frontLeft.setVoltage(leftFFoutput + leftPIDoutput);
         frontRight.setVoltage(rightFFoutput + rightPIDoutput);
-
-
-        SmartDashboard.putNumber("Left target speed", target_left_velocity);
-        SmartDashboard.putNumber("Right target speed", target_right_velocity);
     };
 
     public boolean turnToAngle(double angle)
@@ -209,6 +215,49 @@ public class Drive extends SubsystemBase implements Logged
         rightPIDcontroller.setPID(DriveConstants.Kp_tele, DriveConstants.Ki_tele, DriveConstants.Kd_tele);
     }
 
+    public static double DistanceToSpeaker()
+    {
+        Pose2d currentPose = m_odometry.getEstimatedPosition();
+        double currentX = currentPose.getX();
+        double currentY = currentPose.getY();
+
+        double xToSpeaker;
+        double yToSpeaker;
+        if(DriverStation.getAlliance().get() == Alliance.Blue)
+        {
+            yToSpeaker = DriveConstants.blue_speaker_y - currentY;
+            xToSpeaker = DriveConstants.blue_speaker_x - currentX;
+        }
+        else
+        {
+            yToSpeaker = DriveConstants.red_speaker_y - currentY;
+            xToSpeaker = DriveConstants.red_speaker_x - currentX;
+        }
+        return Math.sqrt(Math.pow(xToSpeaker,2) + Math.pow(yToSpeaker,2));
+    }
+
+    public static double AngleToSpeaker()
+    {
+        Pose2d currentPose = m_odometry.getEstimatedPosition();
+        double currentX = currentPose.getX();
+        double currentY = currentPose.getY();
+
+        double xToSpeaker;
+        double yToSpeaker;
+        if(DriverStation.getAlliance().get() == Alliance.Blue)
+        {
+            yToSpeaker = DriveConstants.blue_speaker_y - currentY;
+            xToSpeaker = DriveConstants.blue_speaker_x - currentX;
+            return Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
+            
+        }
+        else
+        {
+            yToSpeaker = DriveConstants.red_speaker_y - currentY;
+            xToSpeaker = DriveConstants.red_speaker_x - currentX;
+            return 180 + Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
+        }
+    }
     
 
 

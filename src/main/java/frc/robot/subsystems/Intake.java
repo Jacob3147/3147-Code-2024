@@ -4,6 +4,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -34,4 +36,19 @@ public class Intake extends SubsystemBase
         SmartDashboard.putNumber("Green", detectedColor.green);
         SmartDashboard.putNumber("IR prox", IR);
     }
+
+    public void runFwd()
+    {
+        intake.set(1);
+    }
+
+    public void stop()
+    {
+        intake.set(0);
+    }
+    public boolean haveNote()
+    {
+        return false;
+    }
+
 }

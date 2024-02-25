@@ -17,11 +17,11 @@ package frc.robot;
 public final class Constants 
 {
     public static final double degrees_to_radians = Math.PI / 180;
+    public static final int kDriverControllerPort = 0;
+    public static final int kOperatorControllerPort = 1;
     
     public static final class DriveConstants
     {
-        public static final int kDriverControllerPort = 0;
-
         public static final int frontLeft_Motor_Port = 2;
         public static final int backLeft_Motor_Port = 4;
         public static final int frontRight_Motor_Port = 3;
@@ -64,6 +64,20 @@ public final class Constants
     {
         public static final int top_motor_port = 6;
         public static final int bottom_motor_port = 7;
+        public static final int tilt_moter_port = 8;
+        public static final int stage_1_port = 0;
+        public static final int stage_2_port = 1;
+        public static final int encoder_port = 0;
+
+        public static final int tilt_offset = 0;
+
+        public static final double Ks = 0;
+        public static final double Kg = 0;
+        public static final double Kv = 0;
+        public static final double Kp = 0;
+        public static final double Ki = 0;
+        public static final double Kd = 0;
+
     }
 
     public static final class LimelightConstants
@@ -74,4 +88,20 @@ public final class Constants
 
     }
 
+    public static final class LEDConstants
+    {
+        public static final int led_pwm_port = 0;
+        public static final int led_length = 54;
+        public static final int[] color_orange = {255, 35, 0};
+        public static final int[] color_red = {255, 0, 0};
+        public static final int[] color_white = {255, 255, 255};
+        public static final int[] color_off = {0, 0, 0};
+        public static final int[] color_green = {0, 255, 0};
+    }
+
+    public static final class ClimbConstants
+    {
+        public static final int left_climb_port = 2;
+        public static final int right_climb_port = 3;
+    }
 }
