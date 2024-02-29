@@ -7,10 +7,15 @@ package frc.robot;
 
 import org.littletonrobotics.urcl.URCL;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PneumaticHub;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Drive;
 import monologue.Logged;
 import monologue.Monologue;
@@ -25,6 +30,8 @@ public class Robot extends TimedRobot implements Logged {
 
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
+  private Compressor m_Compressor;
+  
 
 
   /**
@@ -34,7 +41,8 @@ public class Robot extends TimedRobot implements Logged {
   @Override
   public void robotInit() 
   {
-    
+    m_Compressor = new Compressor(PneumaticsModuleType.REVPH);
+    m_Compressor.enableDigital();
     Monologue.setupMonologue(this, "Robot", false, false);
     URCL.start();
     
@@ -112,8 +120,8 @@ public class Robot extends TimedRobot implements Logged {
 
   @Override
   public void testInit() {
-    // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    m_robotContainer.testSequence().schedule();
   }
 
   /** This function is called periodically during test mode. */

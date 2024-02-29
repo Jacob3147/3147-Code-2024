@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-
+import edu.wpi.first.math.util.Units;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -22,10 +22,10 @@ public final class Constants
     
     public static final class DriveConstants
     {
-        public static final int frontLeft_Motor_Port = 2;
-        public static final int backLeft_Motor_Port = 4;
+        public static final int frontLeft_Motor_Port = 1;
+        public static final int backLeft_Motor_Port = 2;
         public static final int frontRight_Motor_Port = 3;
-        public static final int backRight_Motor_Port = 1;
+        public static final int backRight_Motor_Port = 4;
 
         //Drive physical properties
         public static final double kMaxSpeed = 5.2; // meters per second
@@ -53,20 +53,29 @@ public final class Constants
         public static final double Kp_tele = 1; 
         public static final double Ki_tele = 0;
         public static final double Kd_tele = 0.1;
+
+        public static final double blue_speaker_x = 0;
+        public static final double red_speaker_x = Units.feetToMeters(54);
+        public static final double blue_speaker_y = 5.5;
+        public static final double red_speaker_y = 5.5;
     }
 
     public static final class IntakeConstants
     {
-        public static final int intake_motor_port = 5;
+        public static final int intake_motor_port = 8;
+        public static final int intake_solenoid_port_a = 15;
+        public static final int intake_solenoid_port_b = 0;
     }
 
     public static final class ShooterConstants
     {
-        public static final int top_motor_port = 6;
+        public static final int top_motor_port = 5;
         public static final int bottom_motor_port = 7;
-        public static final int tilt_moter_port = 8;
-        public static final int stage_1_port = 0;
-        public static final int stage_2_port = 1;
+        public static final int tilt_moter_port = 6;
+        public static final int stage_1_port_a = 12;
+        public static final int stage_1_port_b = 9;
+        public static final int stage_2_port_a = 11;
+        public static final int stage_2_port_b = 10;
         public static final int encoder_port = 0;
 
         public static final int tilt_offset = 0;
@@ -77,6 +86,9 @@ public final class Constants
         public static final double Kp = 0;
         public static final double Ki = 0;
         public static final double Kd = 0;
+
+        public static final double tilt_angle_amp = -20;
+        public static final double tilt_angle_rest = 20;
 
     }
 
@@ -101,7 +113,7 @@ public final class Constants
 
     public static final class ClimbConstants
     {
-        public static final int left_climb_port = 2;
-        public static final int right_climb_port = 3;
+        public static final int climb_solenoid_port_a = 13;
+        public static final int climb_solenoid_port_b = 14;
     }
 }

@@ -4,42 +4,31 @@
 
 package frc.robot;
 
-import frc.robot.Constants;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.ShooterState;
-import frc.robot.utility.Vision;
 import monologue.Logged;
 import monologue.Annotations.Log;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LED;
-import frc.robot.commands.BloopCommand;
 import frc.robot.commands.DriveTeleopCommand;
 import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.LiftAmpCommand;
-import frc.robot.commands.LiftSpeakerCommand;
-import frc.robot.commands.LiftTrapCommand;
-import frc.robot.commands.FeedCommand;
+
 import frc.robot.commands.SpeakerAim_byPose;
-import frc.robot.commands.SpinDownCommand;
-import frc.robot.commands.SpinUpCommand;
 
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 
 
@@ -67,16 +56,36 @@ public class RobotContainer implements Logged {
     private final DriveTeleopCommand m_DriveCommand = new DriveTeleopCommand(m_DriveSubsystem, xSpeedSupplier, turnSpeedSupplier);
     private final SpeakerAim_byPose m_SpeakerAim = new SpeakerAim_byPose(m_DriveSubsystem);
     private final IntakeCommand m_IntakeCommand = new IntakeCommand(m_IntakeSubsystem);
-    private final SpinUpCommand m_SpinUp = new SpinUpCommand(m_ShooterSubsystem);
-    private final SpinDownCommand m_SpinDown = new SpinDownCommand(m_ShooterSubsystem);
-    private final FeedCommand m_FeedCommand = new FeedCommand(m_IntakeSubsystem);
-    private final LiftAmpCommand m_LiftAmpCommand = new LiftAmpCommand(m_ShooterSubsystem);
-    private final LiftSpeakerCommand m_LiftSpeakerCommand = new LiftSpeakerCommand(m_ShooterSubsystem);
-    private final LiftTrapCommand m_LiftTrapCommand = new LiftTrapCommand(m_ShooterSubsystem);
-    private final BloopCommand m_BloopCommand = new BloopCommand(m_ShooterSubsystem);
-;
+
     private final SendableChooser<Command> autoChooser;
 
+    public Command testSequence()
+    {
+        return Commands.sequence(
+            Commands.runOnce(() -> m_ShooterSubsystem.lift_amp()),
+            Commands.waitSeconds(5),
+            Commands.runOnce(() -> m_ShooterSubsystem.lift_trap()),
+            Commands.waitSeconds(5),
+            Commands.runOnce(() -> m_ShooterSubsystem.lift_speaker()),
+            Commands.waitSeconds(2),
+            Commands.runOnce(() -> m_ShooterSubsystem.spinUp(1)),
+            Commands.waitSeconds(5),
+            Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
+            Commands.waitSeconds(5),
+            Commands.runOnce(() -> m_ShooterSubsystem.TiltToAngle(-20)),
+            Commands.waitSeconds(5),
+            Commands.runOnce(() -> m_ShooterSubsystem.TiltToAngle(0)),
+            Commands.waitSeconds(5),
+            Commands.runOnce(() -> m_DriveSubsystem.setDriveMotors(new ChassisSpeeds(0.5, 0, 0))),
+            Commands.waitSeconds(5),
+            Commands.runOnce(() -> m_DriveSubsystem.setDriveMotors(new ChassisSpeeds(0, 0, 0))),
+            Commands.waitSeconds(5),
+            m_IntakeCommand
+        );
+
+
+        
+    }
     public RobotContainer() 
     {
         m_DriveSubsystem.setDefaultCommand(m_DriveCommand);
@@ -85,43 +94,49 @@ public class RobotContainer implements Logged {
 
         NamedCommands.registerCommand("aim", m_SpeakerAim);
         NamedCommands.registerCommand("intake", m_IntakeCommand);
-        NamedCommands.registerCommand("spin up", m_SpinUp);
-        NamedCommands.registerCommand("shoot", m_FeedCommand);
+        NamedCommands.registerCommand(
+            "speaker",
+                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.SPEAKER)
+        );
+
+        NamedCommands.registerCommand(
+            "shoot", 
+                Commands.sequence(
+                    Commands.runOnce(() -> m_IntakeSubsystem.feed()),
+                    Commands.waitSeconds(0.5), 
+                    Commands.runOnce(() -> m_IntakeSubsystem.stop())
+                )
+        );
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("autochooser", autoChooser);
 
 
-        SmartDashboard.putData("Intake", m_IntakeCommand);
-        SmartDashboard.putData("Spin Up", m_SpinUp);
-        SmartDashboard.putData("Spin Down", m_SpinDown);
-        SmartDashboard.putData("Feed shooter", m_FeedCommand);
-        SmartDashboard.putData("Lift amp", m_LiftAmpCommand);
-        SmartDashboard.putData("Lift Trap", m_LiftTrapCommand);
-        SmartDashboard.putData("Lift Speaker", m_LiftSpeakerCommand);
-        SmartDashboard.putData("Bloop", m_BloopCommand);
-
-
         configureBindings();
     }
 
+    
+
     public void configureBindings()
     {
-        m_driverController.leftTrigger(0.5).onTrue(m_IntakeCommand);
+        m_driverController.leftTrigger(0.5).whileTrue(m_IntakeCommand);
 
         m_driverController.a().onTrue(m_SpeakerAim);
 
         m_driverController.x().onTrue(Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.SPEAKER));
 
+        
         m_driverController.y().onTrue(Commands.sequence(
-            Commands.run(() -> m_IntakeSubsystem.runFwd()),
+            Commands.runOnce(() -> m_ShooterSubsystem.spinUp(0.1)),
+            Commands.runOnce(() -> m_IntakeSubsystem.feed()),
             Commands.waitSeconds(0.5), 
+            Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
             Commands.runOnce(() -> m_IntakeSubsystem.stop()),
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AMP)
         ));
 
         m_driverController.b().onTrue(Commands.sequence(
-            Commands.runOnce(() -> m_IntakeSubsystem.runFwd()),
+            Commands.runOnce(() -> m_IntakeSubsystem.feed()),
             Commands.waitSeconds(0.5), 
             Commands.runOnce(() -> m_IntakeSubsystem.stop()),
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.TRAP)
@@ -130,21 +145,25 @@ public class RobotContainer implements Logged {
         m_driverController.rightTrigger(0.5).and(
             () -> m_ShooterSubsystem.state == ShooterState.SPEAKER)
                 .onTrue(Commands.sequence(
-                    Commands.runOnce(() -> m_IntakeSubsystem.runFwd()),
-                    Commands.waitSeconds(0.5), 
-                    Commands.runOnce(() -> m_IntakeSubsystem.stop())
+                    Commands.runOnce(() -> m_IntakeSubsystem.feed()),
+                    Commands.waitSeconds(1), 
+                    Commands.runOnce(() -> m_IntakeSubsystem.stop()),
+                    Commands.waitSeconds(1),
+                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
                 ));
-
+        
         m_driverController.rightTrigger(0.5).and(
             () -> m_ShooterSubsystem.state == ShooterState.AMP 
             || m_ShooterSubsystem.state == ShooterState.TRAP)
                 .onTrue(Commands.sequence(
-                    Commands.runOnce(() -> m_ShooterSubsystem.spinUp(0.5)),
-                    Commands.waitSeconds(0.5),
-                    Commands.runOnce(() -> m_ShooterSubsystem.spinDown())
+                    Commands.runOnce(() -> m_ShooterSubsystem.spinUp(0.4)),
+                    Commands.waitSeconds(2),
+                    Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
+                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
                 ));
 
-        
+        m_driverController.leftBumper().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksUp()));
+        m_driverController.rightBumper().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksDown()));
 
     }
     /**

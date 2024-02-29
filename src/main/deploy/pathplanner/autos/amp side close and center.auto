@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.8,
-      "y": 4.4
+      "x": 0.83,
+      "y": 6.65
     },
-    "rotation": 120.0
+    "rotation": -120.0
   },
   "command": {
     "type": "sequential",
@@ -36,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "A10 first note"
+                  "pathName": "D10 grab first note"
                 }
               },
               {
@@ -49,9 +49,9 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "A20 first note shoot"
+            "name": "aim"
           }
         },
         {
@@ -67,7 +67,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "A30 second note grab"
+                  "pathName": "D20 grab second note"
                 }
               },
               {
@@ -82,7 +82,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A40 second note shoot"
+            "pathName": "D30 shoot second note"
           }
         },
         {
@@ -98,7 +98,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "A50 third note grab"
+                  "pathName": "D40 grab third note"
                 }
               },
               {
@@ -113,7 +113,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A60 third note shoot"
+            "pathName": "D50 shoot third note"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "aim"
           }
         },
         {

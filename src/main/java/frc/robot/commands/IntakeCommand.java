@@ -16,7 +16,7 @@ public class IntakeCommand extends Command
     @Override
     public void execute() 
     {
-        m_intake.runFwd();
+        m_intake.intake_note();
     }
 
     @Override

@@ -5,6 +5,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.Drive;
 
 
@@ -12,15 +13,6 @@ public class SpeakerAim_byPose extends Command
 {
     Drive m_drive;
 
-    final double blue_speaker_x = 0;
-    final double red_speaker_x = Units.feetToMeters(54);
-    final double blue_speaker_y = 5.5;
-    final double red_speaker_y = 5.5;
-
-    Pose2d currentPose;
-
-    double currentX;
-    double currentY;
     double targetAngle;
     boolean result;
 
@@ -35,24 +27,7 @@ public class SpeakerAim_byPose extends Command
     @Override
     public void execute() 
     {
-        currentPose = m_drive.poseSupplier();
-        currentX = currentPose.getX();
-        currentY = currentPose.getY();
-
-        double xToSpeaker;
-        double yToSpeaker;
-        if(DriverStation.getAlliance().get() == Alliance.Blue)
-        {
-            yToSpeaker = blue_speaker_y - currentY;
-            xToSpeaker = blue_speaker_x - currentX;
-            targetAngle = Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
-            
-            
-        }
-        else
-        {
-            targetAngle = 180 + Units.radiansToDegrees(Math.atan2(blue_speaker_y - currentY, blue_speaker_x - currentX));
-        }
+        targetAngle = Drive.AngleToSpeaker();
 
         result = m_drive.turnToAngle(targetAngle);
         
