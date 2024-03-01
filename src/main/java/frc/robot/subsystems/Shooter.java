@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -23,7 +25,8 @@ public class Shooter extends SubsystemBase
         SPEAKER,
         AMP,
         TRAP,
-        NEUTRAL
+        NEUTRAL,
+        PENDING
     }
 
     public ShooterState state = ShooterState.NEUTRAL;
@@ -41,21 +44,22 @@ public class Shooter extends SubsystemBase
                                                ShooterConstants.stage_2_port_b);
 
     DutyCycleEncoder tiltEncoder = new DutyCycleEncoder(ShooterConstants.encoder_port);
-
-    ArmFeedforward tiltFF = new ArmFeedforward(ShooterConstants.Ks, ShooterConstants.Kg, ShooterConstants.Kv);
-    PIDController tiltPID = new PIDController(ShooterConstants.Kp, ShooterConstants.Ki, ShooterConstants.Kd);
+    double Ks, Kg, Kv, Kp, Ki, Kd = 0;
+    ArmFeedforward tiltFF = new ArmFeedforward(0, 0.33, 0);
+    PIDController tiltPID = new PIDController(Kp, Ki, Kd);
 
     double angleMeas;
     double target_speaker_angle;
 
     double target_shooter_speed;
 
+    double angleTest = 0;
 
-
-    public Shooter()
+    Supplier<Double> angleSrc;
+    public Shooter(Supplier<Double> angleSrc)
     {
         bottomRoll.follow(topRoll);
-
+        this.angleSrc = angleSrc;
     }
 
     @Override
@@ -65,6 +69,8 @@ public class Shooter extends SubsystemBase
         target_speaker_angle = calcTiltAngle_Speaker();
 
         switch (state) {
+            case PENDING:
+                break;
             case NEUTRAL:
                 lift_speaker();
                 TiltToAngle(ShooterConstants.tilt_angle_rest);
@@ -90,13 +96,21 @@ public class Shooter extends SubsystemBase
                 break;
         }
 
-        double angle = ShooterConstants.tilt_offset + 360*tiltEncoder.getAbsolutePosition();
-        angleMeas = Units.degreesToRadians(angle);
-        SmartDashboard.putNumber("shooter angle", angle);
+        angleMeas = ShooterConstants.tilt_offset + 360*tiltEncoder.getAbsolutePosition();
+        if(angleMeas > 180) {angleMeas -=360;}
+        SmartDashboard.putNumber("shooter angle", angleMeas);
 
         SmartDashboard.putNumber("calculated shooter speed", target_shooter_speed);
         SmartDashboard.putNumber("calculated tilt angle", target_speaker_angle);
 
+        Kp = SmartDashboard.getNumber("KP", 0);
+        Ki = SmartDashboard.getNumber("KI", 0);
+        Kd = SmartDashboard.getNumber("KD", 0);
+        angleTest = angleSrc.get();
+        SmartDashboard.putNumber("angle SP", angleTest);
+
+        tiltPID.setPID(Kp, Ki, Kd);
+        
     }
     
     public void spinUp(double speed)
@@ -116,10 +130,12 @@ public class Shooter extends SubsystemBase
 
     public void TiltToAngle(double angleSP)
     {
-        double FF = tiltFF.calculate(angleSP, 0);
+        
+        double FF = tiltFF.calculate(Units.degreesToRadians(90-angleSP), 0);
         double PID = tiltPID.calculate(angleMeas, angleSP);
-
-        //tiltMotor.setVoltage(FF+PID);
+        SmartDashboard.putNumber("FF output", FF);
+        SmartDashboard.putNumber("FF input", 90-angleSP);
+        tiltMotor.setVoltage(FF+PID);
     }
 
     public void lift_amp()

@@ -38,8 +38,8 @@ public class Drive extends SubsystemBase implements Logged
     //Drive motors. CAN IDs are set in Constants
     private static final CANSparkMax frontLeft = new CANSparkMax(DriveConstants.frontLeft_Motor_Port, MotorType.kBrushless);
     private static final CANSparkMax backLeft = new CANSparkMax(DriveConstants.backLeft_Motor_Port, MotorType.kBrushless);
-    private static final CANSparkMax frontRight = new CANSparkMax(DriveConstants.frontRight_Motor_Port, MotorType.kBrushless);
-    private static final CANSparkMax backRight = new CANSparkMax(DriveConstants.backRight_Motor_Port, MotorType.kBrushless);
+    private static final CANSparkMax frontRight = new CANSparkMax(DriveConstants.backRight_Motor_Port, MotorType.kBrushless);
+    private static final CANSparkMax backRight = new CANSparkMax(DriveConstants.frontRight_Motor_Port, MotorType.kBrushless);
     
     //Get the encoders from Spark Max
     private static final RelativeEncoder leftEncoder = frontLeft.getEncoder();
@@ -74,13 +74,13 @@ public class Drive extends SubsystemBase implements Logged
     public Drive()
     {
         frontLeft.restoreFactoryDefaults();
-        frontLeft.setIdleMode(IdleMode.kBrake);
+        frontLeft.setIdleMode(IdleMode.kCoast);
         frontRight.restoreFactoryDefaults();
-        frontRight.setIdleMode(IdleMode.kBrake);
+        frontRight.setIdleMode(IdleMode.kCoast);
         backLeft.restoreFactoryDefaults();
-        backLeft.setIdleMode(IdleMode.kBrake);
+        backLeft.setIdleMode(IdleMode.kCoast);
         backRight.restoreFactoryDefaults();
-        backRight.setIdleMode(IdleMode.kBrake);
+        backRight.setIdleMode(IdleMode.kCoast);
 
         //Set the rear drives to follow the front drives
         backLeft.follow(frontLeft);
@@ -135,7 +135,7 @@ public class Drive extends SubsystemBase implements Logged
         if(counter++ == 4)
         {
             counter = 0;
-            Vision.EvaluateLimelightNew(LimelightConstants.limelight_1_name);
+            //Vision.EvaluateLimelightNew(LimelightConstants.limelight_1_name);
             Vision.EvaluateLimelightNew(LimelightConstants.limelight_2_name);
         }
         
@@ -223,17 +223,26 @@ public class Drive extends SubsystemBase implements Logged
 
         double xToSpeaker;
         double yToSpeaker;
-        if(DriverStation.getAlliance().get() == Alliance.Blue)
-        {
-            yToSpeaker = DriveConstants.blue_speaker_y - currentY;
-            xToSpeaker = DriveConstants.blue_speaker_x - currentX;
-        }
-        else
-        {
-            yToSpeaker = DriveConstants.red_speaker_y - currentY;
-            xToSpeaker = DriveConstants.red_speaker_x - currentX;
-        }
-        return Math.sqrt(Math.pow(xToSpeaker,2) + Math.pow(yToSpeaker,2));
+        var alliance = DriverStation.getAlliance();
+                if (alliance.isPresent()) {
+                    if (alliance.get() == DriverStation.Alliance.Blue)
+                    {
+                        yToSpeaker = DriveConstants.blue_speaker_y - currentY;
+                        xToSpeaker = DriveConstants.blue_speaker_x - currentX;
+                    }
+                    else
+                    {
+                        yToSpeaker = DriveConstants.red_speaker_y - currentY;
+                        xToSpeaker = DriveConstants.red_speaker_x - currentX;
+                    }
+                }
+                else
+                {
+                    xToSpeaker = 1;
+                    yToSpeaker = 0;
+                }
+
+        return Math.sqrt(xToSpeaker*xToSpeaker + yToSpeaker*yToSpeaker);
     }
 
     public static double AngleToSpeaker()

@@ -1,10 +1,13 @@
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -22,7 +25,7 @@ public class Intake extends SubsystemBase
                                                        IntakeConstants.intake_solenoid_port_a,
                                                        IntakeConstants.intake_solenoid_port_b);
 
-    ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
+    ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
     Color detectedColor;
     double IR;
     
@@ -45,7 +48,7 @@ public class Intake extends SubsystemBase
 
     public void intake_note()
     {
-        intake.set(1);
+        intake.set(0.7);
         intakeSolenoid.set(Value.kReverse);
     }
 
@@ -60,9 +63,21 @@ public class Intake extends SubsystemBase
         intake.set(0);
         intakeSolenoid.set(Value.kForward);
     }
+
+    public void reverse()
+    {
+        intake.set(-0.5);
+        intakeSolenoid.set(Value.kReverse);
+    }
     public boolean haveNote()
     {
-        return false;
+        return IR > 140;
     }
+    
 
+    public Trigger Noted()
+    {
+        
+        return new Trigger(() -> haveNote());
+    }
 }

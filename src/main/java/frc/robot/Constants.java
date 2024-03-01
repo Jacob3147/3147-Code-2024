@@ -31,7 +31,7 @@ public final class Constants
         public static final double kMaxSpeed = 5.2; // meters per second
         public static final double kMaxAccel = 3; // meters per second per second
         public static final double kMaxAngularSpeed = 2 * Math.PI; //rotations per second
-        public static final double kTrackWidth = 0.5556; // meters
+        public static final double kTrackWidth = 0.5588; // meters
         public static final double kWheelDiameter = 0.1524; // meters
         public static final double gearReduction = 8.45;
 
@@ -78,7 +78,7 @@ public final class Constants
         public static final int stage_2_port_b = 10;
         public static final int encoder_port = 0;
 
-        public static final int tilt_offset = 0;
+        public static final int tilt_offset = -46;
 
         public static final double Ks = 0;
         public static final double Kg = 0;
@@ -87,8 +87,18 @@ public final class Constants
         public static final double Ki = 0;
         public static final double Kd = 0;
 
-        public static final double tilt_angle_amp = -20;
-        public static final double tilt_angle_rest = 20;
+        public static final double tilt_angle_amp = 30;
+        public static final double tilt_angle_rest = -40;
+
+
+        public static final double speed_close = 0.4;
+        public static final double angle_close = -50;
+        public static final double distance_close = 1;
+
+        public static final double speed_far = 0.75;
+        public static final double angle_far = -15;
+        public static final double distance_far = 4;
+
 
     }
 
