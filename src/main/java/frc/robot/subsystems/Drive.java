@@ -22,11 +22,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.utility.Vision;
@@ -69,10 +71,12 @@ public class Drive extends SubsystemBase implements Logged
     private Field2d field = new Field2d();
     
     int counter = 0;
+
     
     //Constructor
     public Drive()
     {
+        
         frontLeft.restoreFactoryDefaults();
         frontLeft.setIdleMode(IdleMode.kCoast);
         frontRight.restoreFactoryDefaults();
@@ -131,13 +135,15 @@ public class Drive extends SubsystemBase implements Logged
     //Constantly update the odometry with the gyro and encoders. Update the dashboard
     public void periodic() 
     {
-        //run limelight check every 5 cycles (100ms)
+
+        
+        /*//run limelight check every 5 cycles (100ms)
         if(counter++ == 4)
         {
             counter = 0;
             //Vision.EvaluateLimelightNew(LimelightConstants.limelight_1_name);
             Vision.EvaluateLimelightNew(LimelightConstants.limelight_2_name);
-        }
+        }*/
         
 
         m_odometry.update(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition());
@@ -146,12 +152,7 @@ public class Drive extends SubsystemBase implements Logged
         
         SmartDashboard.putNumber("odo x", m_odometry.getEstimatedPosition().getX());
         SmartDashboard.putNumber("odo y", m_odometry.getEstimatedPosition().getY());
-        SmartDashboard.putNumber("odo t", m_odometry.getEstimatedPosition().getRotation().getDegrees());
-        SmartDashboard.putNumber("Angle", navX.getYaw());
-        SmartDashboard.putNumber("Left position", getLeftEncoderPosition());
-        SmartDashboard.putNumber("Right position", getRightEncoderPosition());
-        SmartDashboard.putNumber("Left velocity", getLeftEncoderVelocity());
-        SmartDashboard.putNumber("Right velocity", getRightEncoderVelocity());
+        SmartDashboard.putNumber("odo angle", m_odometry.getEstimatedPosition().getRotation().getDegrees());
 
     }
 
@@ -171,7 +172,8 @@ public class Drive extends SubsystemBase implements Logged
         double leftPIDoutput = leftPIDcontroller.calculate(getLeftEncoderVelocity(), target_left_velocity);
         double rightPIDoutput = rightPIDcontroller.calculate(getRightEncoderVelocity(), target_right_velocity);
 
-        
+        SmartDashboard.putNumber("target left", target_left_velocity);
+        SmartDashboard.putNumber("target right", target_right_velocity);
         frontLeft.setVoltage(leftFFoutput + leftPIDoutput);
         frontRight.setVoltage(rightFFoutput + rightPIDoutput);
     };
@@ -185,8 +187,8 @@ public class Drive extends SubsystemBase implements Logged
         
         setDriveMotors(new ChassisSpeeds(0, 0, turnRate));
 
-        SmartDashboard.putNumber("Target Angle", angle);
-        SmartDashboard.putNumber("Input angle", poseSupplier().getRotation().getDegrees());
+        //SmartDashboard.putNumber("Target Angle", angle);
+        //SmartDashboard.putNumber("Input angle", poseSupplier().getRotation().getDegrees());
         return anglePID.atSetpoint();
     }
 
@@ -253,21 +255,58 @@ public class Drive extends SubsystemBase implements Logged
 
         double xToSpeaker;
         double yToSpeaker;
-        if(DriverStation.getAlliance().get() == Alliance.Blue)
-        {
-            yToSpeaker = DriveConstants.blue_speaker_y - currentY;
-            xToSpeaker = DriveConstants.blue_speaker_x - currentX;
-            return Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
-            
-        }
-        else
-        {
-            yToSpeaker = DriveConstants.red_speaker_y - currentY;
-            xToSpeaker = DriveConstants.red_speaker_x - currentX;
-            return 180 + Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
-        }
+        var alliance = DriverStation.getAlliance();
+                if (alliance.isPresent()) {
+                    if (alliance.get() == DriverStation.Alliance.Blue)
+                    {
+                        yToSpeaker = DriveConstants.blue_speaker_y - currentY;
+                        xToSpeaker = DriveConstants.blue_speaker_x - currentX;
+                        return Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
+                    }        
+                    else
+                    {
+                        yToSpeaker = DriveConstants.red_speaker_y - currentY;
+                        xToSpeaker = DriveConstants.red_speaker_x - currentX;
+                        return 180 + Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
+                    }
+                }
+            else return 0;
+        
     }
     
+    public void resetOdoSubwoofer()
+    {
 
+        var alliance = DriverStation.getAlliance();
+                if (alliance.isPresent()) {
+                    if (alliance.get() == DriverStation.Alliance.Blue)
+                    {
+                        m_odometry.resetPosition(
+                            navX.getRotation2d(), 
+                            new DifferentialDriveWheelPositions(getLeftEncoderPosition(), getRightEncoderPosition()), 
+                            new Pose2d(
+                                new Translation2d(
+                                    DriveConstants.blue_speaker_x + 1,
+                                    DriveConstants.blue_speaker_y
+                                ),
+                                new Rotation2d(0)
+                            ));
+                    }
+                    else
+                    {
+                        m_odometry.resetPosition(
+                            navX.getRotation2d(), 
+                            new DifferentialDriveWheelPositions(getLeftEncoderPosition(), getRightEncoderPosition()), 
+                            new Pose2d(
+                                new Translation2d(
+                                    DriveConstants.red_speaker_x - 1,
+                                    DriveConstants.blue_speaker_y
+                                ),
+                                new Rotation2d(180)
+                            ));
+                    }
+        
+        }
+    }
 
 }

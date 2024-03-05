@@ -39,20 +39,20 @@ public final class Constants
         public static final int kEncoderResolution = 1;
         public static final double kEncoderDistancePerPulse = (kWheelDiameter * Math.PI) / (gearReduction * (double) kEncoderResolution);
 
-        public static final double kDeadband = 0.05;
+        public static final double kDeadband = 0.08;
 
         //Drive feedforward constants
         public static final double Ks = 0.5;
-        public static final double Kv = 1.8;
+        public static final double Kv = 1.8; //1.8
         
         //Drive feedback constants
-        public static final double Kp_auto = 1;  //PID
+        public static final double Kp_auto = 0.7; //1 //PID
         public static final double Ki_auto = 0;
-        public static final double Kd_auto = 0;
+        public static final double Kd_auto = 0; //0
 
         public static final double Kp_tele = 1; 
         public static final double Ki_tele = 0;
-        public static final double Kd_tele = 0.1;
+        public static final double Kd_tele = 0; //0.1
 
         public static final double blue_speaker_x = 0;
         public static final double red_speaker_x = Units.feetToMeters(54);
@@ -88,17 +88,45 @@ public final class Constants
         public static final double Kd = 0;
 
         public static final double tilt_angle_amp = 30;
-        public static final double tilt_angle_rest = -40;
+        public static final double tilt_angle_rest = -50;
 
 
-        public static final double speed_close = 0.4;
-        public static final double angle_close = -50;
-        public static final double distance_close = 1;
+        public static final double speed_1 = 0.75;
+        public static final double angle_1 = -55;
+        public static final double distance_1 = 1;
+        /*
+        public static final double speed_2 = 0.65;
+        public static final double angle_2 = -48;
+        public static final double distance_2 = 1.5;
 
-        public static final double speed_far = 0.75;
-        public static final double angle_far = -15;
-        public static final double distance_far = 4;
+        public static final double speed_3 = 0.7;
+        public static final double angle_3 = -40;
+        public static final double distance_3 = 2;
 
+        public static final double speed_4 = 0.75;
+        public static final double angle_4 = -33;
+        public static final double distance_4 = 2.5;
+
+        public static final double speed_5 = 0.8;
+        public static final double angle_5 = -25;
+        public static final double distance_5 = 3;
+
+        public static final double speed_6 = 0.85;
+        public static final double angle_6 = -18;
+        public static final double distance_6 = 3.5;
+
+        public static final double speed_7 = 0.9;
+        public static final double angle_7 = -12;
+        public static final double distance_7 = 4;
+
+        public static final double speed_8 = 0.9;
+        public static final double angle_8 = -12;
+        public static final double distance_8 = 4.5;
+
+        public static final double speed_9 = 0.9;
+        public static final double angle_9 = -12;
+        public static final double distance_9 = 5;
+        */
 
     }
 

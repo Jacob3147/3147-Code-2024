@@ -107,10 +107,13 @@ public class RobotContainer implements Logged {
                 Commands.sequence(
                     Commands.runOnce(() -> m_IntakeSubsystem.feed()),
                     Commands.waitSeconds(1), 
-                    Commands.runOnce(() -> m_IntakeSubsystem.stop())                    
+                    Commands.runOnce(() -> m_IntakeSubsystem.stop()),
+                    Commands.waitSeconds(1),
+                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)                    
                 )
         );
 
+        
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("autochooser", autoChooser);
 
@@ -131,7 +134,7 @@ public class RobotContainer implements Logged {
         
         m_driverController.y().onTrue(Commands.sequence(
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.PENDING),
-            Commands.runOnce(() -> m_ShooterSubsystem.spinUp(0.05)),
+            Commands.runOnce(() -> m_ShooterSubsystem.spinUp(0.04)),
             Commands.waitSeconds(0.1),
             Commands.runOnce(() -> m_IntakeSubsystem.feed()),
             Commands.waitSeconds(0.5), 
@@ -141,8 +144,12 @@ public class RobotContainer implements Logged {
         ));
 
        /* m_driverController.b().onTrue(Commands.sequence(
+            Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.PENDING),
+            Commands.runOnce(() -> m_ShooterSubsystem.spinUp(0.04)),
+            Commands.waitSeconds(0.1),
             Commands.runOnce(() -> m_IntakeSubsystem.feed()),
             Commands.waitSeconds(0.5), 
+            Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
             Commands.runOnce(() -> m_IntakeSubsystem.stop()),
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.TRAP)
         ));*/
@@ -167,13 +174,13 @@ public class RobotContainer implements Logged {
                     Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
                 ));
 
-        m_driverController.leftBumper().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksUp()));
-        m_driverController.rightBumper().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksDown()));
+        //m_driverController.leftBumper().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksUp()));
+        //m_driverController.rightBumper().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksDown()));
 
-        m_driverController.button(7)
+        m_driverController.leftBumper()
         .onTrue(
             Commands.runOnce(() -> m_IntakeSubsystem.reverse()));
-        m_driverController.button(7)
+        m_driverController.leftBumper()
         .onFalse(
             Commands.runOnce(() -> m_IntakeSubsystem.stop()));
 
@@ -183,6 +190,8 @@ public class RobotContainer implements Logged {
                 Commands.waitSeconds(0.5),
                 Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, 0))
         ));
+
+        //m_driverController.rightBumper().onTrue(Commands.runOnce(() -> m_DriveSubsystem.resetOdoSubwoofer()));
     }
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

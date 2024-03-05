@@ -40,10 +40,7 @@ public class Intake extends SubsystemBase
         detectedColor = colorSensor.getColor();
         IR = colorSensor.getProximity();
 
-        SmartDashboard.putNumber("Red", detectedColor.red);
-        SmartDashboard.putNumber("Blue", detectedColor.blue);
-        SmartDashboard.putNumber("Green", detectedColor.green);
-        SmartDashboard.putNumber("IR prox", IR);
+        SmartDashboard.putNumber("Intake IR", IR);
     }
 
     public void intake_note()

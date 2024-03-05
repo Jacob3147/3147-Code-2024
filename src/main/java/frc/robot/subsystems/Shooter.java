@@ -65,6 +65,7 @@ public class Shooter extends SubsystemBase
     @Override
     public void periodic() 
     {
+    
         target_shooter_speed = calcShooterSpeed();
         target_speaker_angle = calcTiltAngle_Speaker();
 
@@ -98,18 +99,10 @@ public class Shooter extends SubsystemBase
 
         angleMeas = ShooterConstants.tilt_offset + 360*tiltEncoder.getAbsolutePosition();
         if(angleMeas > 180) {angleMeas -=360;}
-        SmartDashboard.putNumber("shooter angle", angleMeas);
+        SmartDashboard.putNumber("tilt angle", angleMeas);
+        
 
-        SmartDashboard.putNumber("calculated shooter speed", target_shooter_speed);
-        SmartDashboard.putNumber("calculated tilt angle", target_speaker_angle);
-
-        Kp = SmartDashboard.getNumber("KP", 0);
-        Ki = SmartDashboard.getNumber("KI", 0);
-        Kd = SmartDashboard.getNumber("KD", 0);
-        angleTest = angleSrc.get();
-        SmartDashboard.putNumber("angle SP", angleTest);
-
-        tiltPID.setPID(Kp, Ki, Kd);
+        tiltPID.setPID(0.05, Ki, Kd);
         
     }
     
@@ -133,9 +126,10 @@ public class Shooter extends SubsystemBase
         
         double FF = tiltFF.calculate(Units.degreesToRadians(90-angleSP), 0);
         double PID = tiltPID.calculate(angleMeas, angleSP);
-        SmartDashboard.putNumber("FF output", FF);
-        SmartDashboard.putNumber("FF input", 90-angleSP);
         tiltMotor.setVoltage(FF+PID);
+
+        SmartDashboard.putNumber("Tilt Motor output", FF+PID);
+        SmartDashboard.putNumber("tilt angle SP", angleSP);
     }
 
     public void lift_amp()
@@ -159,22 +153,67 @@ public class Shooter extends SubsystemBase
     private double calcTiltAngle_Speaker()
     {
         double distance = Drive.DistanceToSpeaker();
+        SmartDashboard.putNumber("Distance from speaker", distance);
 
-        return linear_interpolation(distance, ShooterConstants.distance_close, ShooterConstants.distance_far, 
-                                              ShooterConstants.angle_close, ShooterConstants.angle_far);
-        
+        //return linear_interpolation(distance, ShooterConstants.distance_1, ShooterConstants.distance_3, 
+        //                                     ShooterConstants.angle_1, ShooterConstants.angle_3);
+        return ShooterConstants.angle_1;
     }
 
     public double calcShooterSpeed()
     {
         double distance = Drive.DistanceToSpeaker();
 
-        return linear_interpolation(distance, ShooterConstants.distance_close, ShooterConstants.distance_far, 
-                                              ShooterConstants.speed_close, ShooterConstants.speed_far);
+        //return linear_interpolation(distance, ShooterConstants.distance_1, ShooterConstants.distance_3, 
+        //                                      ShooterConstants.speed_1, ShooterConstants.speed_3);
+        return ShooterConstants.speed_1;
     }
 
     private double linear_interpolation(double input, double X1, double X2, double Y1, double Y2)
     {
         return ((Y2-Y1)/(X2-X1))*(input-X1) + Y1;
     }
+
+    /*private double calcShooterSpeed()
+    {
+        double distance = Drive.DistanceToSpeaker();
+
+        if((ShooterConstants.distance_1 < distance) && (distance <= ShooterConstants.distance_2))
+        {
+
+        }
+        if((ShooterConstants.distance_2 < distance) && (distance <= ShooterConstants.distance_3))
+        {
+
+        }
+        if((ShooterConstants.distance_3 < distance) && (distance <= ShooterConstants.distance_4))
+        {
+
+        }
+        if((ShooterConstants.distance_4 < distance) && (distance <= ShooterConstants.distance_5))
+        {
+
+        }
+        if((ShooterConstants.distance_5 < distance) && (distance <= ShooterConstants.distance_6))
+        {
+
+        }
+        if((ShooterConstants.distance_7 < distance) && (distance <= ShooterConstants.distance_7))
+        {
+
+        }
+        if((ShooterConstants.distance_1 < distance) && (distance <= ShooterConstants.distance_2))
+        {
+
+        }
+        
+        return 0;
+    }
+
+    private double calcTiltAngle_Speaker()
+    {
+        return 0;
+    }
+*/
+
 }
