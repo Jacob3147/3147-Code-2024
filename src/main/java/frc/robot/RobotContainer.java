@@ -93,7 +93,7 @@ public class RobotContainer implements Logged {
     {
         m_DriveSubsystem.setDefaultCommand(m_DriveCommand);
 
-        
+        m_LEDSubsystem.LED_Red();
 
         NamedCommands.registerCommand("aim", m_SpeakerAim);
         NamedCommands.registerCommand("intake", m_IntakeCommand);
@@ -108,8 +108,8 @@ public class RobotContainer implements Logged {
                     Commands.runOnce(() -> m_IntakeSubsystem.feed()),
                     Commands.waitSeconds(1), 
                     Commands.runOnce(() -> m_IntakeSubsystem.stop()),
-                    Commands.waitSeconds(1),
-                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)                    
+                    Commands.waitSeconds(1)
+                    //Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)                    
                 )
         );
 
@@ -127,7 +127,15 @@ public class RobotContainer implements Logged {
     {
         m_driverController.leftTrigger(0.5).whileTrue(m_IntakeCommand);
 
-        m_driverController.a().onTrue(m_SpeakerAim);
+        m_driverController.a().onTrue(m_SpeakerAim
+            .andThen(Commands.sequence(
+                Commands.runOnce(() -> m_IntakeSubsystem.feed()),
+                    Commands.waitSeconds(1), 
+                    Commands.runOnce(() -> m_IntakeSubsystem.stop()),
+                    Commands.waitSeconds(1),
+                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
+            )
+        ));
 
         m_driverController.x().onTrue(Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.SPEAKER));
 
@@ -143,6 +151,10 @@ public class RobotContainer implements Logged {
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AMP)
         ));
 
+        m_driverController.b().onTrue(
+            Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.PASS)
+        );
+
        /* m_driverController.b().onTrue(Commands.sequence(
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.PENDING),
             Commands.runOnce(() -> m_ShooterSubsystem.spinUp(0.04)),
@@ -155,7 +167,7 @@ public class RobotContainer implements Logged {
         ));*/
         
         m_driverController.rightTrigger(0.5).and(
-            () -> m_ShooterSubsystem.state == ShooterState.SPEAKER)
+            () -> m_ShooterSubsystem.state == ShooterState.SPEAKER || m_ShooterSubsystem.state == ShooterState.PASS)
                 .onTrue(Commands.sequence(
                     Commands.runOnce(() -> m_IntakeSubsystem.feed()),
                     Commands.waitSeconds(1), 
@@ -174,8 +186,8 @@ public class RobotContainer implements Logged {
                     Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
                 ));
 
-        //m_driverController.leftBumper().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksUp()));
-        //m_driverController.rightBumper().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksDown()));
+        m_driverController.rightBumper().and(m_ClimberSubsystem.areHooksUp).onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksUp()));
+        m_driverController.rightBumper().and(m_ClimberSubsystem.areHooksDown).onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksDown()));
 
         m_driverController.leftBumper()
         .onTrue(
@@ -185,13 +197,27 @@ public class RobotContainer implements Logged {
             Commands.runOnce(() -> m_IntakeSubsystem.stop()));
 
         m_IntakeSubsystem.Noted().onTrue(
-            Commands.sequence(
-                Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)),
-                Commands.waitSeconds(0.5),
-                Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, 0))
+            Commands.parallel(
+                Commands.sequence(
+                    Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)),
+                    Commands.waitSeconds(0.5),
+                    Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, 0))
+                ),
+                Commands.sequence(
+                    Commands.runOnce(() -> m_LEDSubsystem.flashOrange()),
+                    Commands.waitSeconds(1),
+                    Commands.runOnce(() -> m_LEDSubsystem.LED_Orange())
+                )
         ));
 
-        //m_driverController.rightBumper().onTrue(Commands.runOnce(() -> m_DriveSubsystem.resetOdoSubwoofer()));
+        m_IntakeSubsystem.Noted().onFalse(Commands.runOnce(() -> m_LEDSubsystem.LED_Red()));
+
+    }
+
+    //called on teleopInit, kills lingering auto spinup
+    void teleopResets()
+    {
+        m_ShooterSubsystem.state = ShooterState.NEUTRAL;
     }
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

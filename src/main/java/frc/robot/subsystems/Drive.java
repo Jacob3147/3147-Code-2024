@@ -51,7 +51,7 @@ public class Drive extends SubsystemBase implements Logged
     //PID Controllers
     private final static PIDController leftPIDcontroller = new PIDController(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
     private final static PIDController rightPIDcontroller = new PIDController(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
-    private final static PIDController anglePID = new PIDController(0.04,0.02,0.0);
+    private final static PIDController anglePID = new PIDController(0.08,0.02,0.02);
 
     //Feedforward Controllers
     private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(DriveConstants.Ks, DriveConstants.Kv);
@@ -78,9 +78,9 @@ public class Drive extends SubsystemBase implements Logged
     {
         
         frontLeft.restoreFactoryDefaults();
-        frontLeft.setIdleMode(IdleMode.kCoast);
+        frontLeft.setIdleMode(IdleMode.kBrake);
         frontRight.restoreFactoryDefaults();
-        frontRight.setIdleMode(IdleMode.kCoast);
+        frontRight.setIdleMode(IdleMode.kBrake);
         backLeft.restoreFactoryDefaults();
         backLeft.setIdleMode(IdleMode.kCoast);
         backRight.restoreFactoryDefaults();
@@ -99,7 +99,7 @@ public class Drive extends SubsystemBase implements Logged
             navX.getRotation2d(),
             -getLeftEncoderPosition(), 
             -getRightEncoderPosition(),
-            new Pose2d(new Translation2d(5, 5), new Rotation2d(0)),
+            new Pose2d(new Translation2d(1.37, 5.55), new Rotation2d(Math.PI)),
             VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
             VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10))); 
         
@@ -182,6 +182,8 @@ public class Drive extends SubsystemBase implements Logged
     {
         anglePID.enableContinuousInput(-180,180);
         anglePID.setTolerance(2);
+
+        
         double turnRate = anglePID.calculate(poseSupplier().getRotation().getDegrees(), angle);
         turnRate = turnRate > DriveConstants.kMaxAngularSpeed ? DriveConstants.kMaxAngularSpeed : turnRate;
         

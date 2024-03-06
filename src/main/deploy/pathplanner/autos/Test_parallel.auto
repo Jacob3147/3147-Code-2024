@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.82,
-      "y": 6.7
+      "x": 2.0,
+      "y": 6.0
     },
-    "rotation": 58.0
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
@@ -18,25 +18,19 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.0
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "shoot"
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Basic amp side"
+                  "pathName": "Test"
                 }
               },
               {
@@ -47,28 +41,10 @@
               }
             ]
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Copy of Basic amp side"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
-          }
         }
       ]
     }
   },
-  "folder": "basic",
+  "folder": null,
   "choreoAuto": false
 }

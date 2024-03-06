@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.82,
-      "y": 6.7
+      "x": 2,
+      "y": 6.0
     },
-    "rotation": -122.0
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
@@ -18,9 +18,15 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 5.0
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Test"
           }
         },
         {
@@ -32,6 +38,6 @@
       ]
     }
   },
-  "folder": "basic",
+  "folder": null,
   "choreoAuto": false
 }
