@@ -4,6 +4,7 @@ import frc.robot.LimelightHelpers;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.Drive;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
@@ -12,7 +13,7 @@ import edu.wpi.first.math.util.Units;
 
 public class Vision
 {
-    public static void EvaluateLimelightNew(String limelight)
+    public static boolean EvaluateLimelightNew(String limelight)
     {
         double timestamp;
         Pose2d pose;
@@ -29,9 +30,13 @@ public class Vision
         tagcount = limelightMeasurement.tagCount;
         tagarea = limelightMeasurement.avgTagArea;
 
+        SmartDashboard.putNumber("LL x", pose.getX());
+        SmartDashboard.putNumber("LL y", pose.getY());
+        SmartDashboard.putNumber("LL posediff", posediff);
+
         if(pose.getX() == 0)
         {
-            return;
+            return false;
         }
         if(tagcount > 0)
         {
@@ -53,13 +58,14 @@ public class Vision
         }
         else
         {
-            return;
+            return false;
         }
         Drive.m_odometry.setVisionMeasurementStdDevs(VecBuilder.fill(xyStdDev, xyStdDev, Units.degreesToRadians(angleStdDev)));
         Drive.m_odometry.addVisionMeasurement(pose, timestamp);
+        return true;
     }
 
-
+/*
     public static void EvaluateLimelight(String limelight)
     {
         double timestamp;
@@ -84,5 +90,5 @@ public class Vision
                 Drive.m_odometry.addVisionMeasurement(pose, time);
             }
         }
-    }
+    }*/
 }

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.68045071702679,
-        "y": 4.1046482092964185
+        "x": 2.7272273347965497,
+        "y": 4.116342363738859
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.562416728276895,
-        "y": 4.1046482092964185
+        "x": 1.6091933460466548,
+        "y": 4.116342363738859
       },
       "isLocked": false,
       "linkedName": "4 close pickup first note"
@@ -32,8 +32,8 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 2.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 1.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

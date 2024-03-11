@@ -42,7 +42,8 @@ public class Robot extends TimedRobot implements Logged {
   public void robotInit() 
   {
     m_Compressor = new Compressor(PneumaticsModuleType.REVPH);
-    m_Compressor.enableDigital();
+    //m_Compressor.enableDigital();
+    m_Compressor.disable();
     Monologue.setupMonologue(this, "Robot", false, false);
     URCL.start();
     
@@ -109,6 +110,7 @@ public class Robot extends TimedRobot implements Logged {
     // continue until interrupted by another command, remove
     // this line or comment it out.
     Drive.setTeleopPID();
+    m_robotContainer.teleopResets();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

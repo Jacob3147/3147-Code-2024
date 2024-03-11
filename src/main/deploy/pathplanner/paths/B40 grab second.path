@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.773704362223539,
-        "y": 1.7541231663659906
+        "x": 3.5107356824400258,
+        "y": 2.362219197372869
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.500106071664915,
-        "y": 0.904216961823014
+        "x": 4.237137391881402,
+        "y": 1.5123129928298922
       },
       "isLocked": false,
       "linkedName": "Bottom Centerline Shoot first"
     },
     {
       "anchor": {
-        "x": 8.035705214267571,
-        "y": 2.286875430893719
+        "x": 8.293644849397962,
+        "y": 2.4440782784699477
       },
       "prevControl": {
-        "x": 6.188613520084183,
-        "y": 1.6125403679378785
+        "x": 6.446553155214574,
+        "y": 1.769743215514107
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": false,
+  "reversed": true,
   "folder": "3 centerline, source side",
   "previewStartingState": null,
   "useDefaultConstraints": false

@@ -4,13 +4,14 @@
   "holonomicMode": false,
   "pathFolders": [
     "3 centerline, source side",
+    "3 close center",
     "4 close, long shot",
     "4 close, subwoofer",
     "amp side close and center"
   ],
   "autoFolders": [],
-  "defaultMaxVel": 2.0,
-  "defaultMaxAccel": 2.0,
+  "defaultMaxVel": 1.0,
+  "defaultMaxAccel": 1.5,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
   "maxModuleSpeed": 4.5

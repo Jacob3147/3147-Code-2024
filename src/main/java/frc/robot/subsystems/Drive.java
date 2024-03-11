@@ -1,6 +1,6 @@
 package frc.robot.subsystems;
 
-import frc.robot.Constants.DriveConstants;
+import static frc.robot.Constants.DriveConstants.*;
 import monologue.Logged;
 import monologue.Annotations.Log;
 
@@ -38,10 +38,10 @@ import frc.robot.utility.Vision;
 public class Drive extends SubsystemBase implements Logged
 {
     //Drive motors. CAN IDs are set in Constants
-    private static final CANSparkMax frontLeft = new CANSparkMax(DriveConstants.frontLeft_Motor_Port, MotorType.kBrushless);
-    private static final CANSparkMax backLeft = new CANSparkMax(DriveConstants.backLeft_Motor_Port, MotorType.kBrushless);
-    private static final CANSparkMax frontRight = new CANSparkMax(DriveConstants.backRight_Motor_Port, MotorType.kBrushless);
-    private static final CANSparkMax backRight = new CANSparkMax(DriveConstants.frontRight_Motor_Port, MotorType.kBrushless);
+    private static final CANSparkMax frontLeft = new CANSparkMax(frontLeft_Motor_Port, MotorType.kBrushless);
+    private static final CANSparkMax backLeft = new CANSparkMax(backLeft_Motor_Port, MotorType.kBrushless);
+    private static final CANSparkMax frontRight = new CANSparkMax(backRight_Motor_Port, MotorType.kBrushless);
+    private static final CANSparkMax backRight = new CANSparkMax(frontRight_Motor_Port, MotorType.kBrushless);
     
     //Get the encoders from Spark Max
     private static final RelativeEncoder leftEncoder = frontLeft.getEncoder();
@@ -49,20 +49,20 @@ public class Drive extends SubsystemBase implements Logged
     private static final RelativeEncoder rightEncoder = frontRight.getEncoder();
 
     //PID Controllers
-    private final static PIDController leftPIDcontroller = new PIDController(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
-    private final static PIDController rightPIDcontroller = new PIDController(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
-    private final static PIDController anglePID = new PIDController(0.08,0.02,0.02);
+    private final static PIDController leftPIDcontroller = new PIDController(Kp_auto, Ki_auto, Kd_auto);
+    private final static PIDController rightPIDcontroller = new PIDController(Kp_auto, Ki_auto, Kd_auto);
+    private final static PIDController anglePID = new PIDController(0.07,0.02,0);
 
     //Feedforward Controllers
-    private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(DriveConstants.Ks, DriveConstants.Kv);
-    private final SimpleMotorFeedforward rightFeedforward = new SimpleMotorFeedforward(DriveConstants.Ks, DriveConstants.Kv);
+    private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(Ks, Kv);
+    private final SimpleMotorFeedforward rightFeedforward = new SimpleMotorFeedforward(Ks, Kv);
 
     //Gyro
     private static final AHRS navX = new AHRS();
 
     //Kinematics object converts between Chassis Speeds (x, y, angle) and wheel speeds (left wheels, right wheels)
     //Since we have tank drive, y = 0 because we can't move sideways
-    private static final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(DriveConstants.kTrackWidth);
+    private static final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(kTrackWidth);
 
     //Pose Estimator combines encoders, gyro, and optionally limelight to give a Pose2d
     //Pose2d is a combination of a Rotation2d and a Translation2d
@@ -71,7 +71,8 @@ public class Drive extends SubsystemBase implements Logged
     private Field2d field = new Field2d();
     
     int counter = 0;
-
+    boolean LL_front_has_pose = false;
+    boolean LL_rear_has_pose = false;
     
     //Constructor
     public Drive()
@@ -135,15 +136,16 @@ public class Drive extends SubsystemBase implements Logged
     //Constantly update the odometry with the gyro and encoders. Update the dashboard
     public void periodic() 
     {
-
+        SmartDashboard.putBoolean("LL Front valid?", LL_front_has_pose);
+        SmartDashboard.putBoolean("LL Rear valid?", LL_rear_has_pose);
         
-        /*//run limelight check every 5 cycles (100ms)
+        //run limelight check every 5 cycles (100ms)
         if(counter++ == 4)
         {
             counter = 0;
-            //Vision.EvaluateLimelightNew(LimelightConstants.limelight_1_name);
-            Vision.EvaluateLimelightNew(LimelightConstants.limelight_2_name);
-        }*/
+            //LL_front_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_1_name);
+            LL_rear_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_2_name);
+        }
         
 
         m_odometry.update(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition());
@@ -182,10 +184,11 @@ public class Drive extends SubsystemBase implements Logged
     {
         anglePID.enableContinuousInput(-180,180);
         anglePID.setTolerance(2);
+        anglePID.setIZone(10);
 
         
         double turnRate = anglePID.calculate(poseSupplier().getRotation().getDegrees(), angle);
-        turnRate = turnRate > DriveConstants.kMaxAngularSpeed ? DriveConstants.kMaxAngularSpeed : turnRate;
+        turnRate = turnRate > kMaxAngularSpeed ? kMaxAngularSpeed : turnRate;
         
         setDriveMotors(new ChassisSpeeds(0, 0, turnRate));
 
@@ -200,23 +203,23 @@ public class Drive extends SubsystemBase implements Logged
 
     @Log ChassisSpeeds speedSupplier() { return m_kinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(-getLeftEncoderVelocity(), -getRightEncoderVelocity())); }
 
-    @Log double getLeftEncoderPosition() { return leftEncoder.getPosition() * DriveConstants.kEncoderDistancePerPulse; }
-    @Log double getRightEncoderPosition() { return rightEncoder.getPosition() * DriveConstants.kEncoderDistancePerPulse; }
-    @Log double getLeftEncoderVelocity() { return leftEncoder.getVelocity() * DriveConstants.kEncoderDistancePerPulse / 60; }
-    @Log double getRightEncoderVelocity() { return rightEncoder.getVelocity() * DriveConstants.kEncoderDistancePerPulse / 60; }
+    @Log double getLeftEncoderPosition() { return leftEncoder.getPosition() * kEncoderDistancePerPulse; }
+    @Log double getRightEncoderPosition() { return rightEncoder.getPosition() * kEncoderDistancePerPulse; }
+    @Log double getLeftEncoderVelocity() { return leftEncoder.getVelocity() * kEncoderDistancePerPulse / 60; }
+    @Log double getRightEncoderVelocity() { return rightEncoder.getVelocity() * kEncoderDistancePerPulse / 60; }
 
     @Log Rotation2d getGyro() { return navX.getRotation2d(); }
     
     public static void setAutonPID() 
     { 
-        leftPIDcontroller.setPID(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
-        rightPIDcontroller.setPID(DriveConstants.Kp_auto, DriveConstants.Ki_auto, DriveConstants.Kd_auto);
+        leftPIDcontroller.setPID(Kp_auto, Ki_auto, Kd_auto);
+        rightPIDcontroller.setPID(Kp_auto, Ki_auto, Kd_auto);
     }
 
     public static void setTeleopPID()
     {
-        leftPIDcontroller.setPID(DriveConstants.Kp_tele, DriveConstants.Ki_tele, DriveConstants.Kd_tele);
-        rightPIDcontroller.setPID(DriveConstants.Kp_tele, DriveConstants.Ki_tele, DriveConstants.Kd_tele);
+        leftPIDcontroller.setPID(Kp_tele, Ki_tele, Kd_tele);
+        rightPIDcontroller.setPID(Kp_tele, Ki_tele, Kd_tele);
     }
 
     public static double DistanceToSpeaker()
@@ -231,13 +234,13 @@ public class Drive extends SubsystemBase implements Logged
                 if (alliance.isPresent()) {
                     if (alliance.get() == DriverStation.Alliance.Blue)
                     {
-                        yToSpeaker = DriveConstants.blue_speaker_y - currentY;
-                        xToSpeaker = DriveConstants.blue_speaker_x - currentX;
+                        yToSpeaker = blue_speaker_y - currentY;
+                        xToSpeaker = blue_speaker_x - currentX;
                     }
                     else
                     {
-                        yToSpeaker = DriveConstants.red_speaker_y - currentY;
-                        xToSpeaker = DriveConstants.red_speaker_x - currentX;
+                        yToSpeaker = red_speaker_y - currentY;
+                        xToSpeaker = red_speaker_x - currentX;
                     }
                 }
                 else
@@ -261,14 +264,14 @@ public class Drive extends SubsystemBase implements Logged
                 if (alliance.isPresent()) {
                     if (alliance.get() == DriverStation.Alliance.Blue)
                     {
-                        yToSpeaker = DriveConstants.blue_speaker_y - currentY;
-                        xToSpeaker = DriveConstants.blue_speaker_x - currentX;
+                        yToSpeaker = blue_speaker_y - currentY;
+                        xToSpeaker = blue_speaker_x - currentX;
                         return Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
                     }        
                     else
                     {
-                        yToSpeaker = DriveConstants.red_speaker_y - currentY;
-                        xToSpeaker = DriveConstants.red_speaker_x - currentX;
+                        yToSpeaker = red_speaker_y - currentY;
+                        xToSpeaker = red_speaker_x - currentX;
                         return 180 + Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
                     }
                 }
@@ -288,8 +291,8 @@ public class Drive extends SubsystemBase implements Logged
                             new DifferentialDriveWheelPositions(getLeftEncoderPosition(), getRightEncoderPosition()), 
                             new Pose2d(
                                 new Translation2d(
-                                    DriveConstants.blue_speaker_x + 1,
-                                    DriveConstants.blue_speaker_y
+                                    blue_speaker_x + 1,
+                                    blue_speaker_y
                                 ),
                                 new Rotation2d(0)
                             ));
@@ -301,8 +304,8 @@ public class Drive extends SubsystemBase implements Logged
                             new DifferentialDriveWheelPositions(getLeftEncoderPosition(), getRightEncoderPosition()), 
                             new Pose2d(
                                 new Translation2d(
-                                    DriveConstants.red_speaker_x - 1,
-                                    DriveConstants.blue_speaker_y
+                                    red_speaker_x - 1,
+                                    blue_speaker_y
                                 ),
                                 new Rotation2d(180)
                             ));

@@ -20,6 +20,14 @@ public final class Constants
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
     
+    public static final double amptrap_handoff_shooter_speed = 0.04;
+    public static final double amptrap_handoff_feed_time = 0.5;
+    public static final double speaker_feed_time = 1;
+    public static final double amptrap_deposit_speed = 0.4;
+    public static final double amptrap_deposit_time = 1;
+    public static final double rumble_time = 0.5;
+    public static final double rumble_intensity = 0.5;
+
     public static final class DriveConstants
     {
         public static final int frontLeft_Motor_Port = 1;
@@ -39,11 +47,11 @@ public final class Constants
         public static final int kEncoderResolution = 1;
         public static final double kEncoderDistancePerPulse = (kWheelDiameter * Math.PI) / (gearReduction * (double) kEncoderResolution);
 
-        public static final double kDeadband = 0.08;
+        public static final double kDriveControllerDeadband = 0.08;
 
         //Drive feedforward constants
         public static final double Ks = 0.5;
-        public static final double Kv = 1.8; //1.8
+        public static final double Kv = 1.8;
         
         //Drive feedback constants
         public static final double Kp_auto = 1; //1 //PID
@@ -65,6 +73,9 @@ public final class Constants
         public static final int intake_motor_port = 8;
         public static final int intake_solenoid_port_a = 15;
         public static final int intake_solenoid_port_b = 0;
+        public static final int intake_sensor_port = 1;
+        public static final double intake_fwd_speed = 1;
+        public static final double intake_reverse_speed = -0.5;
     }
 
     public static final class ShooterConstants
@@ -93,6 +104,7 @@ public final class Constants
         public static final double shooter_height = 0.2;
         public static final double speaker_height = 2;
         public static final double shot_power = 0.8;
+        public static final double wheel_diameter = Units.inchesToMeters(4);
 
         /*public static final double speed_1 = 0.7;
         public static final double angle_1 = -50;

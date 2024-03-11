@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5107356824400258,
-        "y": 2.362219197372869
+        "x": 2.42,
+        "y": 4.13
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.510735682440026,
-        "y": 1.8622191973728688
-      },
-      "isLocked": false,
-      "linkedName": "Bottom Centerline Shoot first"
-    },
-    {
-      "anchor": {
-        "x": 6.212085358643652,
-        "y": 2.15172441740895
-      },
-      "prevControl": {
-        "x": 5.5193411903571,
-        "y": 1.7676588864248077
-      },
-      "nextControl": {
-        "x": 6.904829526930204,
-        "y": 2.535789948393092
+        "x": 2.70383902591167,
+        "y": 3.91754173821738
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.281950694955519,
-        "y": 4.1046482092964185
+        "x": 4.5865978911445,
+        "y": 1.9997004096572308
       },
       "prevControl": {
-        "x": 7.5312193122575986,
-        "y": 3.3734163430322113
+        "x": 3.5865978911445,
+        "y": 1.9997004096572308
+      },
+      "nextControl": {
+        "x": 5.5865978911445,
+        "y": 1.9997004096572308
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.293644849397962,
+        "y": 2.4557724329123873
+      },
+      "prevControl": {
+        "x": 7.2879475673481275,
+        "y": 2.1634185718513903
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Bottom Centerline Grab third"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -59,7 +59,10 @@
     "rotateFast": false
   },
   "reversed": true,
-  "folder": "3 centerline, source side",
-  "previewStartingState": null,
+  "folder": "3 close center",
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
   "useDefaultConstraints": false
 }

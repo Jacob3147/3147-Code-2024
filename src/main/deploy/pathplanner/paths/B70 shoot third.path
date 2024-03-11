@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.094760892609672,
-        "y": 3.8219052210075923
+        "x": 8.281950694955519,
+        "y": 4.1046482092964185
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.293910973653305,
-        "y": 3.041751769879175
+        "x": 7.481100775999152,
+        "y": 3.3244947581680013
       },
       "isLocked": false,
       "linkedName": "Bottom Centerline Grab third"
     },
     {
       "anchor": {
-        "x": 4.773704362223539,
-        "y": 1.7541231663659906
+        "x": 3.5107356824400258,
+        "y": 2.362219197372869
       },
       "prevControl": {
-        "x": 6.2130575567564446,
-        "y": 0.7312318662642086
+        "x": 4.950088876972932,
+        "y": 1.3393278972710867
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": true,
+  "reversed": false,
   "folder": "3 centerline, source side",
   "previewStartingState": null,
   "useDefaultConstraints": false

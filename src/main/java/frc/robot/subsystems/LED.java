@@ -44,7 +44,7 @@ public class LED extends SubsystemBase
         m_led.setData(m_ledBuffer);
       }
 
-      private void flashOrange() {
+      public void flashOrange() {
         
         // For every pixel
         for (var i = 0; i < m_ledBuffer.getLength(); i++) {
@@ -62,6 +62,14 @@ public class LED extends SubsystemBase
         for(var i = 0; i < m_ledBuffer.getLength(); i++)
         {
             m_ledBuffer.setRGB(i, LEDConstants.color_orange[0], LEDConstants.color_orange[2], LEDConstants.color_orange[1]);
+        }
+        m_led.setData(m_ledBuffer);
+    }
+    public void LED_Red()
+    {
+        for(var i = 0; i < m_ledBuffer.getLength(); i++)
+        {
+            m_ledBuffer.setRGB(i, LEDConstants.color_red[0], LEDConstants.color_red[2], LEDConstants.color_red[1]);
         }
         m_led.setData(m_ledBuffer);
     }

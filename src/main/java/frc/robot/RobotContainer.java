@@ -14,6 +14,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LED;
 import frc.robot.commands.DriveTeleopCommand;
 import frc.robot.commands.IntakeCommand;
+import static frc.robot.Constants.*;
 
 import frc.robot.commands.SpeakerAim_byPose;
 
@@ -36,7 +37,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 public class RobotContainer implements Logged {
-     private final CommandXboxController m_driverController = new CommandXboxController(Constants.kDriverControllerPort);
+     private final CommandXboxController m_driverController = new CommandXboxController(kDriverControllerPort);
     Supplier<Double> test = () -> m_driverController.getRightY()*40;
     
     /****** Subsystems ******/
@@ -106,9 +107,10 @@ public class RobotContainer implements Logged {
             "shoot", 
                 Commands.sequence(
                     Commands.runOnce(() -> m_IntakeSubsystem.feed()),
-                    Commands.waitSeconds(1), 
-                    Commands.runOnce(() -> m_IntakeSubsystem.stop()),
-                    Commands.waitSeconds(1)
+                    Commands.waitSeconds(0.5), 
+                    Commands.runOnce(() -> m_IntakeSubsystem.stop())
+
+                    //Commands.waitSeconds(1)
                     //Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)                    
                 )
         );
@@ -127,25 +129,17 @@ public class RobotContainer implements Logged {
     {
         m_driverController.leftTrigger(0.5).whileTrue(m_IntakeCommand);
 
-        m_driverController.a().onTrue(m_SpeakerAim
-            .andThen(Commands.sequence(
-                Commands.runOnce(() -> m_IntakeSubsystem.feed()),
-                    Commands.waitSeconds(1), 
-                    Commands.runOnce(() -> m_IntakeSubsystem.stop()),
-                    Commands.waitSeconds(1),
-                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
-            )
-        ));
+        m_driverController.a().onTrue(m_SpeakerAim);
 
         m_driverController.x().onTrue(Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.SPEAKER));
 
         
         m_driverController.y().onTrue(Commands.sequence(
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.PENDING),
-            Commands.runOnce(() -> m_ShooterSubsystem.spinUp(0.04)),
+            Commands.runOnce(() -> m_ShooterSubsystem.spinUp(amptrap_handoff_shooter_speed)),
             Commands.waitSeconds(0.1),
             Commands.runOnce(() -> m_IntakeSubsystem.feed()),
-            Commands.waitSeconds(0.5), 
+            Commands.waitSeconds(amptrap_handoff_feed_time), 
             Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
             Commands.runOnce(() -> m_IntakeSubsystem.stop()),
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AMP)
@@ -170,7 +164,7 @@ public class RobotContainer implements Logged {
             () -> m_ShooterSubsystem.state == ShooterState.SPEAKER || m_ShooterSubsystem.state == ShooterState.PASS)
                 .onTrue(Commands.sequence(
                     Commands.runOnce(() -> m_IntakeSubsystem.feed()),
-                    Commands.waitSeconds(1), 
+                    Commands.waitSeconds(speaker_feed_time), 
                     Commands.runOnce(() -> m_IntakeSubsystem.stop()),
                     Commands.waitSeconds(1),
                     Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
@@ -180,8 +174,8 @@ public class RobotContainer implements Logged {
             () -> m_ShooterSubsystem.state == ShooterState.AMP 
             || m_ShooterSubsystem.state == ShooterState.TRAP)
                 .onTrue(Commands.sequence(
-                    Commands.runOnce(() -> m_ShooterSubsystem.spinUp(0.4)),
-                    Commands.waitSeconds(1),
+                    Commands.runOnce(() -> m_ShooterSubsystem.spinUp(amptrap_deposit_speed)),
+                    Commands.waitSeconds(amptrap_deposit_time),
                     Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
                     Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
                 ));
@@ -199,8 +193,8 @@ public class RobotContainer implements Logged {
         m_IntakeSubsystem.Noted().onTrue(
             Commands.parallel(
                 Commands.sequence(
-                    Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, 0.5)),
-                    Commands.waitSeconds(0.5),
+                    Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, rumble_intensity)),
+                    Commands.waitSeconds(rumble_time),
                     Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, 0))
                 ),
                 Commands.sequence(

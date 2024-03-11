@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.8,
-      "y": 4.4
+      "x": 1.23,
+      "y": 3.06
     },
-    "rotation": 120.0
+    "rotation": 115.0
   },
   "command": {
     "type": "sequential",
@@ -30,13 +30,50 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "B10 shoot starting"
+          }
+        },
+        {
           "type": "deadline",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "C10 first note"
+                  "pathName": "B30 shoot first"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "aim"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "B40 grab second"
                 }
               },
               {
@@ -51,7 +88,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C20, clear stage"
+            "pathName": "B50 shoot second"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "aim"
           }
         },
         {
@@ -67,7 +110,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "C30 grab second note"
+                  "pathName": "B60 Grab Third"
                 }
               },
               {
@@ -77,63 +120,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "aim"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "C40, grab third note"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "aim"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
           }
         }
       ]

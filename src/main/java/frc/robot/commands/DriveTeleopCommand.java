@@ -38,8 +38,8 @@ public class DriveTeleopCommand extends Command
         double turnSpeed = -1*turnSpeedGet.get();
         
         //Deadband
-        xSpeed = (Math.abs(xSpeed) < DriveConstants.kDeadband) ? 0 : xSpeed;
-        turnSpeed = (Math.abs(turnSpeed) < DriveConstants.kDeadband) ? 0 : turnSpeed;
+        xSpeed = (Math.abs(xSpeed) < DriveConstants.kDriveControllerDeadband) ? 0 : xSpeed;
+        turnSpeed = (Math.abs(turnSpeed) < DriveConstants.kDriveControllerDeadband) ? 0 : turnSpeed;
 
         //Scale speeds from [-1, 1] to [-maxSpeed, maxSpeed]
         xSpeed *= DriveConstants.kMaxSpeed;
