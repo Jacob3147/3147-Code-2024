@@ -43,7 +43,7 @@ public final class Constants
         public static final double kWheelDiameter = 0.1524; // meters
         public static final double gearReduction = 8.45;
 
-        
+        public static final double drive_motor_current_limit = 60;
         public static final int kEncoderResolution = 1;
         public static final double kEncoderDistancePerPulse = (kWheelDiameter * Math.PI) / (gearReduction * (double) kEncoderResolution);
 
@@ -99,6 +99,7 @@ public final class Constants
         public static final double Kd = 0;
 
         public static final double tilt_angle_amp = 30;
+        public static final double tilt_angle_trap = 30;
         public static final double tilt_angle_rest = -50;
 
         public static final double shooter_height = 0.2;
@@ -166,7 +167,7 @@ public final class Constants
 
     public static final class ClimbConstants
     {
-        public static final int climb_solenoid_port_a = 13;
-        public static final int climb_solenoid_port_b = 14;
+        public static final int left_climb_port = 9;
+        public static final int right_climb_port = 10;
     }
 }

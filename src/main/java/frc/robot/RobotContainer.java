@@ -6,8 +6,6 @@ package frc.robot;
 
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.ShooterState;
-import monologue.Logged;
-import monologue.Annotations.Log;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
@@ -24,7 +22,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,23 +33,22 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 
 
-public class RobotContainer implements Logged {
-     private final CommandXboxController m_driverController = new CommandXboxController(kDriverControllerPort);
-    Supplier<Double> test = () -> m_driverController.getRightY()*40;
+public class RobotContainer {
+    private final CommandXboxController m_driverController = new CommandXboxController(kDriverControllerPort);
     
     /****** Subsystems ******/
     private final Drive m_DriveSubsystem = new Drive();
     private final Climber m_ClimberSubsystem = new Climber();
     private final Intake m_IntakeSubsystem = new Intake();
-    private final Shooter m_ShooterSubsystem = new Shooter(test);
+    private final Shooter m_ShooterSubsystem = new Shooter();
     private final LED m_LEDSubsystem = new LED();
 
 
     /****** Joysticks and Joystick Suppliers ******/
    
-    private final XboxController m_operatorController = new XboxController(Constants.kOperatorControllerPort);
-    @Log Supplier<Double> xSpeedSupplier = () -> m_driverController.getLeftY();
-    @Log Supplier<Double> turnSpeedSupplier = () -> m_driverController.getLeftX();
+   // private final XboxController m_operatorController = new XboxController(Constants.kOperatorControllerPort);
+    Supplier<Double> xSpeedSupplier = () -> m_driverController.getLeftY();
+    Supplier<Double> turnSpeedSupplier = () -> m_driverController.getLeftX();
     
 
 
@@ -135,7 +131,7 @@ public class RobotContainer implements Logged {
 
         
         m_driverController.y().onTrue(Commands.sequence(
-            Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.PENDING),
+            Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AWAIT_HANDOFF),
             Commands.runOnce(() -> m_ShooterSubsystem.spinUp(amptrap_handoff_shooter_speed)),
             Commands.waitSeconds(0.1),
             Commands.runOnce(() -> m_IntakeSubsystem.feed()),
@@ -144,21 +140,23 @@ public class RobotContainer implements Logged {
             Commands.runOnce(() -> m_IntakeSubsystem.stop()),
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AMP)
         ));
-
+        /* 
         m_driverController.b().onTrue(
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.PASS)
-        );
+        );*/
 
-       /* m_driverController.b().onTrue(Commands.sequence(
-            Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.PENDING),
-            Commands.runOnce(() -> m_ShooterSubsystem.spinUp(0.04)),
+        m_driverController.b().onTrue(Commands.sequence(
+            Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AWAIT_HANDOFF),
+            Commands.runOnce(() -> m_ShooterSubsystem.spinUp(amptrap_handoff_shooter_speed)),
             Commands.waitSeconds(0.1),
             Commands.runOnce(() -> m_IntakeSubsystem.feed()),
-            Commands.waitSeconds(0.5), 
+            Commands.waitSeconds(amptrap_handoff_feed_time), 
             Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
             Commands.runOnce(() -> m_IntakeSubsystem.stop()),
-            Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.TRAP)
-        ));*/
+            Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.TRAP_PRE),
+            Commands.waitSeconds(1),
+            Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.TRAP_FULL)
+        ));
         
         m_driverController.rightTrigger(0.5).and(
             () -> m_ShooterSubsystem.state == ShooterState.SPEAKER || m_ShooterSubsystem.state == ShooterState.PASS)
@@ -171,8 +169,7 @@ public class RobotContainer implements Logged {
                 ));
         
         m_driverController.rightTrigger(0.5).and(
-            () -> m_ShooterSubsystem.state == ShooterState.AMP 
-            || m_ShooterSubsystem.state == ShooterState.TRAP)
+            () -> m_ShooterSubsystem.state == ShooterState.AMP)
                 .onTrue(Commands.sequence(
                     Commands.runOnce(() -> m_ShooterSubsystem.spinUp(amptrap_deposit_speed)),
                     Commands.waitSeconds(amptrap_deposit_time),
@@ -180,8 +177,17 @@ public class RobotContainer implements Logged {
                     Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
                 ));
 
-        m_driverController.rightBumper().and(m_ClimberSubsystem.areHooksUp).onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksUp()));
-        m_driverController.rightBumper().and(m_ClimberSubsystem.areHooksDown).onTrue(Commands.runOnce(() -> m_ClimberSubsystem.HooksDown()));
+        m_driverController.rightTrigger(0.5).and(
+            () -> m_ShooterSubsystem.state == ShooterState.TRAP_FULL)
+                .onTrue(Commands.sequence(
+                    Commands.runOnce(() -> m_ShooterSubsystem.spinUp(amptrap_deposit_speed)),
+                    Commands.waitSeconds(amptrap_deposit_time),
+                    Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
+                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.TRAP_POST),
+                    Commands.waitSeconds(1),
+                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
+                ));
+
 
         m_driverController.leftBumper()
         .onTrue(
@@ -213,12 +219,12 @@ public class RobotContainer implements Logged {
     {
         m_ShooterSubsystem.state = ShooterState.NEUTRAL;
     }
+
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
      * @return the command to run in autonomous
      */
-    @Log
     public Command getAutonomousCommand() 
     {
         return autoChooser.getSelected();

@@ -27,7 +27,7 @@ public class Intake extends SubsystemBase
 
     public Intake()
     {
-        
+        SmartDashboard.putBoolean("Ignore Intake Sensor?", false);
     }
     
     @Override
