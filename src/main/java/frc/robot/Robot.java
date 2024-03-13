@@ -41,8 +41,8 @@ public class Robot extends TimedRobot {
     DataLogManager.logNetworkTables(true);
     DriverStation.startDataLog(DataLogManager.getLog());
     m_Compressor = new Compressor(PneumaticsModuleType.REVPH);
-    //m_Compressor.enableDigital();
-    m_Compressor.disable();
+    m_Compressor.enableDigital();
+    //m_Compressor.disable();
     URCL.start();
     
 

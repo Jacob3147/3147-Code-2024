@@ -65,10 +65,11 @@ public class Drive extends SubsystemBase
 
     private Field2d field = new Field2d();
     
-    int counter = 0;
     boolean LL_front_has_pose = false;
     boolean LL_rear_has_pose = false;
     
+    Pose2d LL_rear_pose;
+
     //Constructor
     public Drive()
     {
@@ -131,13 +132,8 @@ public class Drive extends SubsystemBase
         SmartDashboard.putBoolean("LL Front valid?", LL_front_has_pose);
         SmartDashboard.putBoolean("LL Rear valid?", LL_rear_has_pose);
         
-        //run limelight check every 5 cycles (100ms)
-        if(counter++ == 4)
-        {
-            counter = 0;
-            //LL_front_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_1_name);
-            LL_rear_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_2_name);
-        }
+        //LL_front_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_1_name);
+        LL_rear_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_2_name);
         
 
         m_odometry.update(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition());
@@ -253,57 +249,23 @@ public class Drive extends SubsystemBase
         double xToSpeaker;
         double yToSpeaker;
         var alliance = DriverStation.getAlliance();
-                if (alliance.isPresent()) {
-                    if (alliance.get() == DriverStation.Alliance.Blue)
-                    {
-                        yToSpeaker = blue_speaker_y - currentY;
-                        xToSpeaker = blue_speaker_x - currentX;
-                        return Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
-                    }        
-                    else
-                    {
-                        yToSpeaker = red_speaker_y - currentY;
-                        xToSpeaker = red_speaker_x - currentX;
-                        return 180 + Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
-                    }
-                }
-            else return 0;
+        if (alliance.isPresent()) {
+            if (alliance.get() == DriverStation.Alliance.Blue)
+            {
+                yToSpeaker = blue_speaker_y - currentY;
+                xToSpeaker = blue_speaker_x - currentX;
+                return Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
+            }        
+            else
+            {
+                yToSpeaker = red_speaker_y - currentY;
+                xToSpeaker = red_speaker_x - currentX;
+                return 180 + Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
+            }
+        }
+        else return 0;
         
     }
     
-    public void resetOdoSubwoofer()
-    {
-
-        var alliance = DriverStation.getAlliance();
-                if (alliance.isPresent()) {
-                    if (alliance.get() == DriverStation.Alliance.Blue)
-                    {
-                        m_odometry.resetPosition(
-                            navX.getRotation2d(), 
-                            new DifferentialDriveWheelPositions(getLeftEncoderPosition(), getRightEncoderPosition()), 
-                            new Pose2d(
-                                new Translation2d(
-                                    blue_speaker_x + 1,
-                                    blue_speaker_y
-                                ),
-                                new Rotation2d(0)
-                            ));
-                    }
-                    else
-                    {
-                        m_odometry.resetPosition(
-                            navX.getRotation2d(), 
-                            new DifferentialDriveWheelPositions(getLeftEncoderPosition(), getRightEncoderPosition()), 
-                            new Pose2d(
-                                new Translation2d(
-                                    red_speaker_x - 1,
-                                    blue_speaker_y
-                                ),
-                                new Rotation2d(180)
-                            ));
-                    }
-        
-        }
-    }
 
 }

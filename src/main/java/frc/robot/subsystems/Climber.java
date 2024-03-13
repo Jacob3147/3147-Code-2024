@@ -16,7 +16,7 @@ import static frc.robot.Constants.ClimbConstants.*;
 public class Climber extends SubsystemBase 
 {   
     CANSparkMax climber_left = new CANSparkMax(left_climb_port, MotorType.kBrushless);
-    CANSparkMax climber_right = new CANSparkMax(left_climb_port, MotorType.kBrushless);
+    CANSparkMax climber_right = new CANSparkMax(right_climb_port, MotorType.kBrushless);
 
     RelativeEncoder leftEncoder;
     RelativeEncoder rightEncoder;
@@ -77,8 +77,8 @@ public class Climber extends SubsystemBase
         if((d != kD)) { leftPID.setD(d); rightPID.setD(d); kD = d; }
 
 
-        leftLimit = left_limit.get();
-        rightLimit = right_limit.get();
+        leftLimit = false; //left_limit.get();
+        rightLimit = false; //right_limit.get();
 
         if(leftLimit)
         {
@@ -99,50 +99,17 @@ public class Climber extends SubsystemBase
     public void hooksUp()
     {
         
-        leftPID.setReference(5, ControlType.kPosition);
-        rightPID.setReference(5, ControlType.kPosition);
+        leftPID.setReference(42, ControlType.kPosition);
+        rightPID.setReference(42, ControlType.kPosition);
     }
 
     public void hooksDown()
     {
         
-        leftPID.setReference(1, ControlType.kPosition);
-        rightPID.setReference(1, ControlType.kPosition);
+        leftPID.setReference(0, ControlType.kPosition);
+        rightPID.setReference(0, ControlType.kPosition);
     }
 
-    /*
-    public void seekZero()
-    {
-        seekZeroLeft();
-        seekZeroRight();
-    }
-
-    private void seekZeroLeft()
-    {
-        if(!leftLimit)
-        {
-            climber_left.setVoltage(climb_creep_down_spd*12);
-        }
-        else
-        {
-            climber_left.setVoltage(0);
-            
-            return;
-        }
-    }
-
-    private void seekZeroRight()
-    {
-        if(!rightLimit)
-        {
-            climber_right.setVoltage(climb_creep_down_spd*12);
-        }
-        else
-        {
-            climber_right.setVoltage(0);
-            return;
-        }
-    }*/
-
+  
 
 }

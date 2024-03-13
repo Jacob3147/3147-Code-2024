@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -50,7 +51,7 @@ public class Shooter extends SubsystemBase
 
     DutyCycleEncoder tiltEncoder = new DutyCycleEncoder(encoder_port);
     double Ks, Kg, Kv, Kp, Ki, Kd = 0;
-    ArmFeedforward tiltFF = new ArmFeedforward(0, 0.33, 0);
+    ArmFeedforward tiltFF = new ArmFeedforward(0, 0.34, 0);
     PIDController tiltPID = new PIDController(Kp, Ki, Kd);
 
     double angleMeas;
@@ -64,22 +65,19 @@ public class Shooter extends SubsystemBase
 
     boolean subwooferOnly = false;
 
-    Mechanism2d shooter2d;
-    MechanismRoot2d root;
-    MechanismLigament2d shooter_lifter;
-    MechanismLigament2d shooter_tilter;
-
     public Shooter()
     {
+        bottomRoll.restoreFactoryDefaults();
+        topRoll.restoreFactoryDefaults();
+        tiltMotor.restoreFactoryDefaults();
+
+        bottomRoll.setIdleMode(IdleMode.kBrake);
+        topRoll.setIdleMode(IdleMode.kBrake);
+        tiltMotor.setIdleMode(IdleMode.kBrake);
         bottomRoll.follow(topRoll);
 
         SmartDashboard.putBoolean("Subwoofer Only?", false);
 
-        //Configure Mechanism2d for shooter (only for visualization in logging)
-        shooter2d = new Mechanism2d(3,3);
-        root = shooter2d.getRoot("base", 1, 0);
-        shooter_lifter = root.append(new MechanismLigament2d("lifter", 1, 90));
-        shooter_tilter = shooter_lifter.append(new MechanismLigament2d("tilter", 1, 90));
         
     }
 
@@ -135,7 +133,7 @@ public class Shooter extends SubsystemBase
         SmartDashboard.putNumber("tilt angle", angleMeas);
         
 
-        tiltPID.setPID(0.05, Ki, Kd);
+        
         
     }
     
@@ -155,33 +153,31 @@ public class Shooter extends SubsystemBase
     }
 
     public void TiltToAngle(double angleSP)
-    {        
+    {      
+        
+        tiltPID.setPID(0.1, 0.03, 0); 
         double FF = tiltFF.calculate(angleMeas, 0);
         double PID = tiltPID.calculate(angleMeas, angleSP);
-        
+        tiltPID.setTolerance(2);
+        tiltPID.setIZone(6);
         tiltMotor.setVoltage(FF+PID);
-
-        shooter_tilter.setAngle(90-angleSP);
         SmartDashboard.putNumber("tilt angle SP", angleSP);
     }
 
     public void lift_speaker()
     {
-        shooter_lifter.setLength(1);
         stage1.set(Value.kReverse);
         stage2.set(Value.kReverse);
     }
 
     public void lift_amp()
     {
-        shooter_lifter.setLength(2);
         stage1.set(Value.kForward);
         stage2.set(Value.kReverse);
     }
 
     public void lift_trap()
     {
-        shooter_lifter.setLength(3);
         stage1.set(Value.kForward);
         stage2.set(Value.kForward);
     }
@@ -195,11 +191,20 @@ public class Shooter extends SubsystemBase
     private double calcTiltAngle_Speaker()
     {
         double distance = subwooferOnly ? 1.3 : Drive.DistanceToSpeaker();
-        double velocity = (shot_speed_rpm / 60) * wheel_diameter*Math.PI;
+        double velocity = (5600*0.8 / 60) * wheel_diameter*Math.PI;
 
-        double angle = (180 / Math.PI ) * Math.atan(((speaker_height - shooter_height)/distance) - 4.9*distance / (velocity*velocity));
+        double angle = 
+        (180 / Math.PI ) 
+        * Math.atan(
+            (Math.pow(velocity, 2)
+            - Math.sqrt(Math.pow(velocity,4)-9.8*(
+                9.8*Math.pow(distance,2)+2*Math.pow(velocity,2)*(speaker_height-shooter_height))
+                )
+            )
+            / (9.8*distance)
+        );
   
-        return angle;
+        return -angle;
     }
 
     /*private double calcShooterSpeed()

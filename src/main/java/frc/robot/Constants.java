@@ -21,7 +21,7 @@ public final class Constants
     public static final int kOperatorControllerPort = 1;
     
     public static final double amptrap_handoff_shooter_speed = 0.04;
-    public static final double amptrap_handoff_feed_time = 0.5;
+    public static final double amptrap_handoff_feed_time = 0.3;
     public static final double speaker_feed_time = 1;
     public static final double amptrap_deposit_speed = 0.4;
     public static final double amptrap_deposit_time = 1;
@@ -102,48 +102,12 @@ public final class Constants
         public static final double tilt_angle_trap = 30;
         public static final double tilt_angle_rest = -50;
 
-        public static final double shooter_height = 0.2;
+        public static final double shooter_height = Units.inchesToMeters(22);
         public static final double speaker_height = 2;
         public static final double shot_power = 0.8;
         public static final double wheel_diameter = Units.inchesToMeters(4);
 
-        /*public static final double speed_1 = 0.7;
-        public static final double angle_1 = -50;
-        public static final double distance_1 = 1;
         
-        public static final double speed_2 = 0.7;
-        public static final double angle_2 = -50;
-        public static final double distance_2 = 1.5;
-
-        public static final double speed_3 = 0.75;
-        public static final double angle_3 = -34;
-        public static final double distance_3 = 2;
-
-        public static final double speed_4 = 0.75;
-        public static final double angle_4 = -30;
-        public static final double distance_4 = 2.5;
-
-        public static final double speed_5 = 0.8;
-        public static final double angle_5 = -25;
-        public static final double distance_5 = 3;
-
-        public static final double speed_6 = 0.85;
-        public static final double angle_6 = -18;
-        public static final double distance_6 = 3.5;
-
-        public static final double speed_7 = 0.9;
-        public static final double angle_7 = -12;
-        public static final double distance_7 = 4;
-
-        public static final double speed_8 = 0.9;
-        public static final double angle_8 = -12;
-        public static final double distance_8 = 4.5;
-
-        public static final double speed_9 = 0.9;
-        public static final double angle_9 = -12;
-        public static final double distance_9 = 5;*/
-        
-
     }
 
     public static final class LimelightConstants
@@ -167,7 +131,11 @@ public final class Constants
 
     public static final class ClimbConstants
     {
-        public static final int left_climb_port = 9;
-        public static final int right_climb_port = 10;
+        public static final int left_climb_port = 10;
+        public static final int right_climb_port = 9;
+
+        public static final double climber_rotations_per_mm = 1;
+        public static final int left_limit_port = 2;
+        public static final int right_limit_port = 3;
     }
 }

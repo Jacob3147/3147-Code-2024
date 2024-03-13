@@ -212,6 +212,9 @@ public class RobotContainer {
 
         m_IntakeSubsystem.Noted().onFalse(Commands.runOnce(() -> m_LEDSubsystem.LED_Red()));
 
+
+        m_driverController.povUp().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksUp()));
+        m_driverController.povDown().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksDown()));
     }
 
     //called on teleopInit, kills lingering auto spinup
