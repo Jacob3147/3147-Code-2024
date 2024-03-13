@@ -6,16 +6,16 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ShooterConstants.*;
@@ -50,21 +50,26 @@ public class Shooter extends SubsystemBase
                                                stage_2_port_b);
 
     DutyCycleEncoder tiltEncoder = new DutyCycleEncoder(encoder_port);
-    double Ks, Kg, Kv, Kp, Ki, Kd = 0;
-    ArmFeedforward tiltFF = new ArmFeedforward(0, 0.34, 0);
-    PIDController tiltPID = new PIDController(Kp, Ki, Kd);
+    double Ks = 0;
+    double Kg = 0.33;
+    double Kv = 1;
+    double Ka = 0;
+    double Kp, Ki, Kd, p, i, d = 0;
+    ArmFeedforward tiltFF = new ArmFeedforward(Ks, Kg, Kv, Ka);
+    ProfiledPIDController tiltPID = new ProfiledPIDController(Kp, Ki, Kd, new TrapezoidProfile.Constraints(maxV, maxA));
 
-    double angleMeas;
+    double angleMeas, anglePVradians;
     double target_speaker_angle;
     double target_shooter_speed;
     double angleTest = 0;
 
     RelativeEncoder shot_speed_encoder = topRoll.getEncoder();
 
-    double shot_speed_rpm;
-
     boolean subwooferOnly = false;
 
+    double lastSpeed = 0;
+    double lastTime = Timer.getFPGATimestamp();
+    
     public Shooter()
     {
         bottomRoll.restoreFactoryDefaults();
@@ -78,7 +83,13 @@ public class Shooter extends SubsystemBase
 
         SmartDashboard.putBoolean("Subwoofer Only?", false);
 
-        
+        SmartDashboard.putNumber("Kp",Kp);
+        SmartDashboard.putNumber("Ki",Ki);
+        SmartDashboard.putNumber("Kd",Kd);
+        SmartDashboard.putNumber("Ks",Ks);
+        SmartDashboard.putNumber("Kg",Kg);
+        SmartDashboard.putNumber("Kv",Kv);
+        SmartDashboard.putNumber("Ka",Ka);
     }
 
     @Override
@@ -86,7 +97,6 @@ public class Shooter extends SubsystemBase
     {
         subwooferOnly = SmartDashboard.getBoolean("Subwoofer Only?", false);
 
-        shot_speed_rpm = shot_speed_encoder.getVelocity();
         target_shooter_speed = calcShooterSpeed();
         target_speaker_angle = calcTiltAngle_Speaker();
 
@@ -130,13 +140,44 @@ public class Shooter extends SubsystemBase
 
         angleMeas = tilt_offset + 360*tiltEncoder.getAbsolutePosition();
         if(angleMeas > 180) {angleMeas -=360;}
-        SmartDashboard.putNumber("tilt angle", angleMeas);
-        
+
+        SmartDashboard.putNumber("tilt angle", angleMeas);  
+
+        anglePVradians = Units.degreesToRadians(angleMeas - 90);
 
         
+        p = SmartDashboard.getNumber("Kp",Kp);
+        i = SmartDashboard.getNumber("Ki",Ki);
+        d = SmartDashboard.getNumber("Kd",Kd);
+        
+
+        if(p != Kp) tiltPID.setP(p);
+        if(i != Ki) tiltPID.setI(i);
+        if(d != Kd) tiltPID.setD(i);
         
     }
     
+    public void TiltToAngle(double angleSP)
+    {      
+        
+        double angleSPradians = Units.degreesToRadians(angleSP - 90);
+
+        double PID = tiltPID.calculate(anglePVradians, angleSPradians);
+        
+        double acceleration = (tiltPID.getSetpoint().velocity - lastSpeed) / (Timer.getFPGATimestamp() - lastTime);
+
+        double FF = tiltFF.calculate(tiltPID.getSetpoint().position, tiltPID.getSetpoint().velocity, acceleration);
+
+        tiltMotor.setVoltage(PID + FF);
+
+        lastSpeed = tiltPID.getSetpoint().velocity;
+        lastTime = Timer.getFPGATimestamp();
+        SmartDashboard.putNumber("tilt angle SP", angleSP);
+        SmartDashboard.putNumber("angle PV radians", anglePVradians);
+        SmartDashboard.putNumber("angle SP radians", angleSPradians);
+    }
+
+
     public void spinUp(double speed)
     {
         topRoll.set(-1*RobotController.getBatteryVoltage()/12*speed);
@@ -152,17 +193,7 @@ public class Shooter extends SubsystemBase
         return true;
     }
 
-    public void TiltToAngle(double angleSP)
-    {      
-        
-        tiltPID.setPID(0.1, 0.03, 0); 
-        double FF = tiltFF.calculate(angleMeas, 0);
-        double PID = tiltPID.calculate(angleMeas, angleSP);
-        tiltPID.setTolerance(2);
-        tiltPID.setIZone(6);
-        tiltMotor.setVoltage(FF+PID);
-        SmartDashboard.putNumber("tilt angle SP", angleSP);
-    }
+    
 
     public void lift_speaker()
     {
@@ -191,7 +222,7 @@ public class Shooter extends SubsystemBase
     private double calcTiltAngle_Speaker()
     {
         double distance = subwooferOnly ? 1.3 : Drive.DistanceToSpeaker();
-        double velocity = (5600*0.8 / 60) * wheel_diameter*Math.PI;
+        double velocity = shot_power*(5800*0.8 / 60) * wheel_diameter*Math.PI;
 
         double angle = 
         (180 / Math.PI ) 

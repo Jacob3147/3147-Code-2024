@@ -97,6 +97,8 @@ public final class Constants
         public static final double Kp = 0;
         public static final double Ki = 0;
         public static final double Kd = 0;
+        public static final double maxV = 1;
+        public static final double maxA = 1;
 
         public static final double tilt_angle_amp = 30;
         public static final double tilt_angle_trap = 30;
