@@ -50,11 +50,7 @@ public class Shooter extends SubsystemBase
                                                stage_2_port_b);
 
     DutyCycleEncoder tiltEncoder = new DutyCycleEncoder(encoder_port);
-    double Ks = 0;
-    double Kg = 0.33;
-    double Kv = 1;
-    double Ka = 0;
-    double Kp, Ki, Kd, p, i, d = 0;
+    double p, i, d = 0;
     ArmFeedforward tiltFF = new ArmFeedforward(Ks, Kg, Kv, Ka);
     ProfiledPIDController tiltPID = new ProfiledPIDController(Kp, Ki, Kd, new TrapezoidProfile.Constraints(maxV, maxA));
 
@@ -78,8 +74,10 @@ public class Shooter extends SubsystemBase
 
         bottomRoll.setIdleMode(IdleMode.kBrake);
         topRoll.setIdleMode(IdleMode.kBrake);
-        tiltMotor.setIdleMode(IdleMode.kBrake);
+        tiltMotor.setIdleMode(IdleMode.kCoast);
         bottomRoll.follow(topRoll);
+
+        tiltMotor.setInverted(false);
 
         SmartDashboard.putBoolean("Subwoofer Only?", false);
 
@@ -99,6 +97,8 @@ public class Shooter extends SubsystemBase
 
         target_shooter_speed = calcShooterSpeed();
         target_speaker_angle = calcTiltAngle_Speaker();
+
+        SmartDashboard.putNumber("encoder raw", tiltEncoder.getAbsolutePosition());
 
         SmartDashboard.putNumber("Target Speed", target_shooter_speed);
         SmartDashboard.putNumber("Speaker angle", target_speaker_angle);
@@ -143,7 +143,7 @@ public class Shooter extends SubsystemBase
 
         SmartDashboard.putNumber("tilt angle", angleMeas);  
 
-        anglePVradians = Units.degreesToRadians(angleMeas - 90);
+        anglePVradians = -1 * Units.degreesToRadians(angleMeas - 90);
 
         
         p = SmartDashboard.getNumber("Kp",Kp);
@@ -160,7 +160,7 @@ public class Shooter extends SubsystemBase
     public void TiltToAngle(double angleSP)
     {      
         
-        double angleSPradians = Units.degreesToRadians(angleSP - 90);
+        double angleSPradians = -1* Units.degreesToRadians(angleSP - 90);
 
         double PID = tiltPID.calculate(anglePVradians, angleSPradians);
         
@@ -168,8 +168,8 @@ public class Shooter extends SubsystemBase
 
         double FF = tiltFF.calculate(tiltPID.getSetpoint().position, tiltPID.getSetpoint().velocity, acceleration);
 
-        tiltMotor.setVoltage(PID + FF);
-
+        tiltMotor.setVoltage(-1*(PID + FF));
+        SmartDashboard.putNumber("tilt output", PID+FF);
         lastSpeed = tiltPID.getSetpoint().velocity;
         lastTime = Timer.getFPGATimestamp();
         SmartDashboard.putNumber("tilt angle SP", angleSP);
@@ -218,12 +218,14 @@ public class Shooter extends SubsystemBase
     {
         return shot_power;
     }
-
+    /*
     private double calcTiltAngle_Speaker()
     {
         double distance = subwooferOnly ? 1.3 : Drive.DistanceToSpeaker();
         double velocity = shot_power*(5800*0.8 / 60) * wheel_diameter*Math.PI;
-
+        
+        
+        
         double angle = 
         (180 / Math.PI ) 
         * Math.atan(
@@ -235,63 +237,9 @@ public class Shooter extends SubsystemBase
             / (9.8*distance)
         );
   
-        return -angle;
-    }
+        return -(angle-4);
+    }*/
 
-    /*private double calcShooterSpeed()
-    {
-        double distance = Drive.DistanceToSpeaker();
-
-        if((distance_1 < distance) && (distance <= distance_2))
-        {
-            return linear_interpolation(distance, 
-                                        distance_1, distance_2, 
-                                        speed_1, speed_2);
-        }
-        if((distance_2 < distance) && (distance <= distance_3))
-        {
-            return linear_interpolation(distance, 
-                                        distance_2, distance_3, 
-                                        speed_2, speed_3);
-        }
-        if((distance_3 < distance) && (distance <= distance_4))
-        {
-            return linear_interpolation(distance, 
-                                        distance_3, distance_4, 
-                                        speed_3, speed_4);
-        }
-        if((distance_4 < distance) && (distance <= distance_5))
-        {
-            return linear_interpolation(distance, 
-                                        distance_4, distance_5, 
-                                        speed_4, speed_5);
-        }
-        if((distance_5 < distance) && (distance <= distance_6))
-        {
-            return linear_interpolation(distance, 
-                                        distance_5, distance_6, 
-                                        speed_5, speed_6);
-        }
-        if((distance_6 < distance) && (distance <= distance_7))
-        {
-            return linear_interpolation(distance, 
-                                        distance_6, distance_7, 
-                                        speed_6, speed_7);
-        }
-        if((distance_7 < distance) && (distance <= distance_8))
-        {
-            return linear_interpolation(distance, 
-                                        distance_7, distance_8, 
-                                        speed_7, speed_8);
-        }
-        if((distance_8 < distance) && (distance <= distance_9))
-        {
-            return linear_interpolation(distance, 
-                                        distance_8, distance_9, 
-                                        speed_8, speed_9);
-        }
-        return speed_1;
-    }
 
     private double calcTiltAngle_Speaker()
     {
@@ -345,13 +293,13 @@ public class Shooter extends SubsystemBase
                                         distance_8, distance_9, 
                                         angle_8, angle_9);
         }
-        return angle_1;
+        return angle_9;
     }
 
     private double linear_interpolation(double input, double X1, double X2, double Y1, double Y2)
     {
         return ((Y2-Y1)/(X2-X1))*(input-X1) + Y1;
-    }*/
+    }
 
 
 }

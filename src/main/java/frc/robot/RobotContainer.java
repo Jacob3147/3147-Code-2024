@@ -9,7 +9,6 @@ import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.LED;
 import frc.robot.commands.DriveTeleopCommand;
 import frc.robot.commands.IntakeCommand;
 import static frc.robot.Constants.*;
@@ -21,7 +20,6 @@ import java.util.function.Supplier;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,7 +39,6 @@ public class RobotContainer {
     private final Climber m_ClimberSubsystem = new Climber();
     private final Intake m_IntakeSubsystem = new Intake();
     private final Shooter m_ShooterSubsystem = new Shooter();
-    private final LED m_LEDSubsystem = new LED();
 
 
     /****** Joysticks and Joystick Suppliers ******/
@@ -59,38 +56,10 @@ public class RobotContainer {
 
     private final SendableChooser<Command> autoChooser;
 
-    public Command testSequence()
-    {
-        return Commands.sequence(
-            Commands.runOnce(() -> m_ShooterSubsystem.lift_amp()),
-            Commands.waitSeconds(5),
-            Commands.runOnce(() -> m_ShooterSubsystem.lift_trap()),
-            Commands.waitSeconds(5),
-            Commands.runOnce(() -> m_ShooterSubsystem.lift_speaker()),
-            Commands.waitSeconds(2),
-            Commands.runOnce(() -> m_ShooterSubsystem.spinUp(1)),
-            Commands.waitSeconds(5),
-            Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
-            Commands.waitSeconds(5),
-            Commands.runOnce(() -> m_ShooterSubsystem.TiltToAngle(-20)),
-            Commands.waitSeconds(5),
-            Commands.runOnce(() -> m_ShooterSubsystem.TiltToAngle(0)),
-            Commands.waitSeconds(5),
-            Commands.runOnce(() -> m_DriveSubsystem.setDriveMotors(new ChassisSpeeds(0.5, 0, 0))),
-            Commands.waitSeconds(5),
-            Commands.runOnce(() -> m_DriveSubsystem.setDriveMotors(new ChassisSpeeds(0, 0, 0))),
-            Commands.waitSeconds(5),
-            m_IntakeCommand
-        );
 
-
-        
-    }
     public RobotContainer() 
     {
         m_DriveSubsystem.setDefaultCommand(m_DriveCommand);
-
-        m_LEDSubsystem.LED_Red();
 
         NamedCommands.registerCommand("aim", m_SpeakerAim);
         NamedCommands.registerCommand("intake", m_IntakeCommand);
@@ -104,10 +73,7 @@ public class RobotContainer {
                 Commands.sequence(
                     Commands.runOnce(() -> m_IntakeSubsystem.feed()),
                     Commands.waitSeconds(0.5), 
-                    Commands.runOnce(() -> m_IntakeSubsystem.stop())
-
-                    //Commands.waitSeconds(1)
-                    //Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)                    
+                    Commands.runOnce(() -> m_IntakeSubsystem.stop())                 
                 )
         );
 
@@ -125,7 +91,7 @@ public class RobotContainer {
     {
         m_driverController.leftTrigger(0.5).whileTrue(m_IntakeCommand);
 
-        m_driverController.a().onTrue(m_SpeakerAim);
+        m_driverController.a().whileTrue(m_SpeakerAim);
 
         m_driverController.x().onTrue(Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.SPEAKER));
 
@@ -202,19 +168,15 @@ public class RobotContainer {
                     Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, rumble_intensity)),
                     Commands.waitSeconds(rumble_time),
                     Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, 0))
-                ),
-                Commands.sequence(
-                    Commands.runOnce(() -> m_LEDSubsystem.flashOrange()),
-                    Commands.waitSeconds(1),
-                    Commands.runOnce(() -> m_LEDSubsystem.LED_Orange())
                 )
+
         ));
 
-        m_IntakeSubsystem.Noted().onFalse(Commands.runOnce(() -> m_LEDSubsystem.LED_Red()));
 
 
-        m_driverController.povUp().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksUp()));
-        m_driverController.povDown().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksDown()));
+        m_driverController.povUp().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksUp()));
+        m_driverController.povDown().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksDown()));
+        m_ClimberSubsystem.setDefaultCommand(Commands.runOnce(() -> m_ClimberSubsystem.stop(), m_ClimberSubsystem));
     }
 
     //called on teleopInit, kills lingering auto spinup

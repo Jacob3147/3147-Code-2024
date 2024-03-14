@@ -13,6 +13,7 @@ public class DriveTeleopCommand extends Command
     private final Supplier<Double> xSpeedGet, turnSpeedGet;
     private final SlewRateLimiter xLim, turnLim;
 
+    ChassisSpeeds speeds = new ChassisSpeeds(0,0,0);
     public DriveTeleopCommand(Drive drive, Supplier<Double> xSpeedGet, Supplier<Double> turnSpeedGet)
     {
         this.xSpeedGet = xSpeedGet;
@@ -49,8 +50,10 @@ public class DriveTeleopCommand extends Command
         xSpeed = xLim.calculate(xSpeed);
         turnSpeed = turnLim.calculate(turnSpeed);
 
+        speeds.vxMetersPerSecond = xSpeed;
+        speeds.omegaRadiansPerSecond = turnSpeed;
         //Call drive function
-        m_drive.setDriveMotors(new ChassisSpeeds(xSpeed, 0, turnSpeed));
+        m_drive.setDriveMotors(speeds);
 
         
     }

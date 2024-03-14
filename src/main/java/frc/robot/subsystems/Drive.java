@@ -46,7 +46,7 @@ public class Drive extends SubsystemBase
     //PID Controllers
     private final static PIDController leftPIDcontroller = new PIDController(Kp_auto, Ki_auto, Kd_auto);
     private final static PIDController rightPIDcontroller = new PIDController(Kp_auto, Ki_auto, Kd_auto);
-    private final static PIDController anglePID = new PIDController(0.07,0.02,0);
+    private final static PIDController anglePID = new PIDController(0.1,0.02,0);
 
     //Feedforward Controllers
     private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(Ks, Kv);
@@ -168,20 +168,19 @@ public class Drive extends SubsystemBase
         frontRight.setVoltage(rightFFoutput + rightPIDoutput);
     };
 
+    ChassisSpeeds turnToAngle_speeds = new ChassisSpeeds(0,0,0);
     public boolean turnToAngle(double angle)
     {
         anglePID.enableContinuousInput(-180,180);
         anglePID.setTolerance(2);
         anglePID.setIZone(10);
 
-        
         double turnRate = anglePID.calculate(poseSupplier().getRotation().getDegrees(), angle);
         turnRate = turnRate > kMaxAngularSpeed ? kMaxAngularSpeed : turnRate;
-        
-        setDriveMotors(new ChassisSpeeds(0, 0, turnRate));
 
-        //SmartDashboard.putNumber("Target Angle", angle);
-        //SmartDashboard.putNumber("Input angle", poseSupplier().getRotation().getDegrees());
+        turnToAngle_speeds.omegaRadiansPerSecond = turnRate;
+        setDriveMotors(turnToAngle_speeds);
+
         return anglePID.atSetpoint();
     }
 
@@ -189,7 +188,13 @@ public class Drive extends SubsystemBase
 
     void poseSetter(Pose2d p) {m_odometry.resetPosition(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition(), p); }
 
-    ChassisSpeeds speedSupplier() { return m_kinematics.toChassisSpeeds(new DifferentialDriveWheelSpeeds(-getLeftEncoderVelocity(), -getRightEncoderVelocity())); }
+    DifferentialDriveWheelSpeeds supplier_wheel_speeds = new DifferentialDriveWheelSpeeds();
+    ChassisSpeeds speedSupplier() 
+    {
+        supplier_wheel_speeds.leftMetersPerSecond = -getLeftEncoderVelocity();
+        supplier_wheel_speeds.rightMetersPerSecond = -getRightEncoderVelocity();
+        return m_kinematics.toChassisSpeeds(supplier_wheel_speeds); 
+    }
 
     double getLeftEncoderPosition() { return leftEncoder.getPosition() * kEncoderDistancePerPulse; }
     double getRightEncoderPosition() { return rightEncoder.getPosition() * kEncoderDistancePerPulse; }

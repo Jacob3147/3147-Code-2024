@@ -42,7 +42,6 @@ public class Robot extends TimedRobot {
     DriverStation.startDataLog(DataLogManager.getLog());
     m_Compressor = new Compressor(PneumaticsModuleType.REVPH);
     m_Compressor.enableDigital();
-    //m_Compressor.disable();
     URCL.start();
     
 
@@ -115,7 +114,6 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
-    m_robotContainer.testSequence().schedule();
   }
 
   /** This function is called periodically during test mode. */

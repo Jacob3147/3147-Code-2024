@@ -89,12 +89,13 @@ public final class Constants
         public static final int stage_2_port_b = 10;
         public static final int encoder_port = 0;
 
-        public static final int tilt_offset = -46;
+        public static final int tilt_offset = -94;
 
-        public static final double Ks = 0;
-        public static final double Kg = 0;
-        public static final double Kv = 0;
-        public static final double Kp = 0;
+        public static final double Ks = 0.05;
+        public static final double Kg = 0.33;
+        public static final double Kv = 1.6;
+        public static final double Ka = 0.01;
+        public static final double Kp = 4;
         public static final double Ki = 0;
         public static final double Kd = 0;
         public static final double maxV = 1;
@@ -104,31 +105,44 @@ public final class Constants
         public static final double tilt_angle_trap = 30;
         public static final double tilt_angle_rest = -50;
 
-        public static final double shooter_height = Units.inchesToMeters(22);
+        public static final double shooter_height = Units.inchesToMeters(27);
         public static final double speaker_height = 2;
-        public static final double shot_power = 0.8;
+        public static final double shot_power = 1;
         public static final double wheel_diameter = Units.inchesToMeters(4);
 
-        
+        public static final double distance_1 = 1.3;
+        public static final double angle_1 = -49;
+
+        public static final double distance_2 = 1.5;
+        public static final double angle_2 = -46;
+
+        public static final double distance_3 = 2;
+        public static final double angle_3 = -36;
+
+        public static final double distance_4 = 2.5;
+        public static final double angle_4 = -28;
+
+        public static final double distance_5 = 3;
+        public static final double angle_5 = -21;
+
+        public static final double distance_6 = 3.5;
+        public static final double angle_6 = -18;
+
+        public static final double distance_7 = 4;
+        public static final double angle_7 = -15;
+
+        public static final double distance_8 = 4.5;
+        public static final double angle_8 = -12;
+
+        public static final double distance_9 = 5;
+        public static final double angle_9 = -9;
     }
 
     public static final class LimelightConstants
     {
         public static final String limelight_1_name = "limelight-front";
         public static final String limelight_2_name = "limelight-rear";
-        public static final double tolerance = 0.3; //reject any limelight pose jumps greater than this (meters)
 
-    }
-
-    public static final class LEDConstants
-    {
-        public static final int led_pwm_port = 0;
-        public static final int led_length = 54;
-        public static final int[] color_orange = {255, 35, 0};
-        public static final int[] color_red = {255, 0, 0};
-        public static final int[] color_white = {255, 255, 255};
-        public static final int[] color_off = {0, 0, 0};
-        public static final int[] color_green = {0, 255, 0};
     }
 
     public static final class ClimbConstants
@@ -139,5 +153,7 @@ public final class Constants
         public static final double climber_rotations_per_mm = 1;
         public static final int left_limit_port = 2;
         public static final int right_limit_port = 3;
+
+        public static final double climbSpeed = 0.1;
     }
 }

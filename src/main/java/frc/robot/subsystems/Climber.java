@@ -62,9 +62,9 @@ public class Climber extends SubsystemBase
         leftPID.setD(kD);
 
         
-        SmartDashboard.putNumber("P Gain", kP);
-        SmartDashboard.putNumber("I Gain", kI);
-        SmartDashboard.putNumber("D Gain", kD);
+        SmartDashboard.putNumber("Climb P Gain", kP);
+        SmartDashboard.putNumber("Climb I Gain", kI);
+        SmartDashboard.putNumber("Climb D Gain", kD);
     }
 
     public void periodic() 
@@ -98,17 +98,28 @@ public class Climber extends SubsystemBase
 
     public void hooksUp()
     {
-        
+        climber_left.set(-0.1);
+        climber_right.set(-0.1);
+        /*
         leftPID.setReference(42, ControlType.kPosition);
-        rightPID.setReference(42, ControlType.kPosition);
+        rightPID.setReference(42, ControlType.kPosition);*/
     }
 
     public void hooksDown()
     {
-        
+        climber_left.set(0.1);
+        climber_right.set(0.1);
+        /*
         leftPID.setReference(0, ControlType.kPosition);
-        rightPID.setReference(0, ControlType.kPosition);
+        rightPID.setReference(0, ControlType.kPosition);*/
     }
+
+    public void stop()
+    {
+        climber_left.set(0);
+        climber_right.set(0);
+    }    
+    
 
   
 

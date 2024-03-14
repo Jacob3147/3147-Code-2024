@@ -25,6 +25,8 @@ public class Intake extends SubsystemBase
     DigitalInput m_beamBreak = new DigitalInput(intake_sensor_port);
     boolean sensorOverride = false;
 
+    double haveNoteCounts = 0;
+
     public Intake()
     {
         SmartDashboard.putBoolean("Ignore Intake Sensor?", false);
@@ -34,7 +36,16 @@ public class Intake extends SubsystemBase
     public void periodic() 
     {
         sensorOverride = SmartDashboard.getBoolean("Ignore Intake Sensor?", false);
-        haveNote = !m_beamBreak.get();
+        if (!m_beamBreak.get())
+        {
+            haveNoteCounts++;
+        }
+        else
+        {
+            haveNoteCounts = 0;
+        }
+
+        haveNote = haveNoteCounts >= 2;
         SmartDashboard.putBoolean("Have note?", haveNote);
     }
 
