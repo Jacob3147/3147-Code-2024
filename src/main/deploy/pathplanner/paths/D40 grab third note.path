@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.34,
-        "y": 6.39
+        "x": 2.0255780682501534,
+        "y": 6.665668032190766
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.301261695938319,
-        "y": 6.665637355816999
+        "x": 2.8916034720345922,
+        "y": 7.165668032190766
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "amp center shoot second"
     },
     {
       "anchor": {
@@ -29,11 +29,23 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "New Constraints Zone",
+      "minWaypointRelativePos": 0.75,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    }
+  ],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 4.5,
+    "maxAcceleration": 4.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

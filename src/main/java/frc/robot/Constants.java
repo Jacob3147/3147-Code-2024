@@ -20,10 +20,11 @@ public final class Constants
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
     
-    public static final double amptrap_handoff_shooter_speed = 0.04;
+    public static final double amptrap_handoff_shooter_speed = 0.03;
     public static final double amptrap_handoff_feed_time = 0.3;
     public static final double speaker_feed_time = 1;
-    public static final double amptrap_deposit_speed = 0.4;
+    public static final double amp_deposit_speed = 0.4;
+    public static final double trap_deposit_speed = 1;
     public static final double amptrap_deposit_time = 1;
     public static final double rumble_time = 0.5;
     public static final double rumble_intensity = 0.5;
@@ -63,7 +64,7 @@ public final class Constants
         public static final double Kd_tele = 0; //0.1
 
         public static final double blue_speaker_x = 0;
-        public static final double red_speaker_x = Units.feetToMeters(54);
+        public static final double red_speaker_x = Units.feetToMeters(54.25);
         public static final double blue_speaker_y = 5.5;
         public static final double red_speaker_y = 5.5;
     }
@@ -102,7 +103,7 @@ public final class Constants
         public static final double maxA = 1;
 
         public static final double tilt_angle_amp = 30;
-        public static final double tilt_angle_trap = 30;
+        public static final double tilt_angle_trap = -45; //abs(angle) < 35 breaks height
         public static final double tilt_angle_rest = -50;
 
         public static final double shooter_height = Units.inchesToMeters(27);
@@ -111,22 +112,22 @@ public final class Constants
         public static final double wheel_diameter = Units.inchesToMeters(4);
 
         public static final double distance_1 = 1.3;
-        public static final double angle_1 = -49;
+        public static final double angle_1 = -48;
 
         public static final double distance_2 = 1.5;
-        public static final double angle_2 = -46;
+        public static final double angle_2 = -43;
 
         public static final double distance_3 = 2;
-        public static final double angle_3 = -36;
+        public static final double angle_3 = -32;
 
         public static final double distance_4 = 2.5;
-        public static final double angle_4 = -28;
+        public static final double angle_4 = -26;
 
         public static final double distance_5 = 3;
-        public static final double angle_5 = -21;
+        public static final double angle_5 = -20;
 
         public static final double distance_6 = 3.5;
-        public static final double angle_6 = -18;
+        public static final double angle_6 = -17;
 
         public static final double distance_7 = 4;
         public static final double angle_7 = -15;
@@ -154,6 +155,6 @@ public final class Constants
         public static final int left_limit_port = 2;
         public static final int right_limit_port = 3;
 
-        public static final double climbSpeed = 0.1;
+        public static final double climbSpeed = 0.4;
     }
 }

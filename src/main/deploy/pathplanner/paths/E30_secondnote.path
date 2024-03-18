@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.71,
-        "y": 4.28
+        "x": 1.39,
+        "y": 4.05
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.202403876506104,
-        "y": 4.193175911166535
+        "x": 1.9066646304299733,
+        "y": 4.05
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "shimmy"
     },
     {
       "anchor": {
         "x": 2.6570624081419103,
-        "y": 4.12
+        "y": 4.05
       },
       "prevControl": {
         "x": 2.1570624081419103,
-        "y": 4.12
+        "y": 4.05
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
   "reversed": true,
   "folder": "3 close center",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -1.432096184164605,
     "velocity": 0
   },
   "useDefaultConstraints": true

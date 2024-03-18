@@ -4,24 +4,24 @@
     {
       "anchor": {
         "x": 2.73,
-        "y": 7.0
+        "y": 4.116342363738859
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.503208389273922,
-        "y": 7.617577560869408
+        "x": 2.23,
+        "y": 4.116342363738859
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "4 close pickup first note"
     },
     {
       "anchor": {
-        "x": 8.270256540513081,
-        "y": 7.447004608294931
+        "x": 2.05,
+        "y": 4.12
       },
       "prevControl": {
-        "x": 7.270256540513081,
-        "y": 7.447004608294931
+        "x": 2.449999999999999,
+        "y": 4.12
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,8 +32,8 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 2.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 1.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
@@ -42,11 +42,11 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": true,
-  "folder": "amp side close and center",
+  "reversed": false,
+  "folder": "4 close, long shot",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

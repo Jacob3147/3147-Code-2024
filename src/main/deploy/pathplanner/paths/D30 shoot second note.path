@@ -16,24 +16,24 @@
     },
     {
       "anchor": {
-        "x": 4.341521825900795,
-        "y": 6.391523640190138
+        "x": 2.0255780682501534,
+        "y": 6.665668032190766
       },
       "prevControl": {
-        "x": 5.47030008345731,
-        "y": 6.714031713777714
+        "x": 3.7212304624039443,
+        "y": 7.928636711974279
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "amp center shoot second"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

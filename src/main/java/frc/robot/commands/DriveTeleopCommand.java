@@ -27,7 +27,7 @@ public class DriveTeleopCommand extends Command
     }
 
     @Override
-    public void initialize() { }
+    public void initialize() { } 
 
 
     @Override
@@ -37,6 +37,9 @@ public class DriveTeleopCommand extends Command
         //Grab joystick speeds from supplier
         double xSpeed = -1*xSpeedGet.get();
         double turnSpeed = -1*turnSpeedGet.get();
+
+        xSpeed = xSpeed*xSpeed*(xSpeed < 0 ? -1 : 1);
+        turnSpeed = turnSpeed*turnSpeed*(turnSpeed < 0 ? -1 : 1);
         
         //Deadband
         xSpeed = (Math.abs(xSpeed) < DriveConstants.kDriveControllerDeadband) ? 0 : xSpeed;

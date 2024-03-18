@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -20,19 +19,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ShooterConstants.*;
 
+import java.util.function.Supplier;
+
 
 public class Shooter extends SubsystemBase
 {
+    Supplier<Double> angleOffsetTemp;
     public enum ShooterState
     {
         SPEAKER,
         AMP,
-        TRAP_PRE,
-        TRAP_FULL,
-        TRAP_POST,
+        TRAP,
         NEUTRAL,
         AWAIT_HANDOFF,
-        PASS
+        PASS,
+        SUBWOOFER
     }
 
     public ShooterState state = ShooterState.NEUTRAL;
@@ -50,24 +51,20 @@ public class Shooter extends SubsystemBase
                                                stage_2_port_b);
 
     DutyCycleEncoder tiltEncoder = new DutyCycleEncoder(encoder_port);
-    double p, i, d = 0;
     ArmFeedforward tiltFF = new ArmFeedforward(Ks, Kg, Kv, Ka);
     ProfiledPIDController tiltPID = new ProfiledPIDController(Kp, Ki, Kd, new TrapezoidProfile.Constraints(maxV, maxA));
 
     double angleMeas, anglePVradians;
     double target_speaker_angle;
-    double target_shooter_speed;
-    double angleTest = 0;
-
-    RelativeEncoder shot_speed_encoder = topRoll.getEncoder();
 
     boolean subwooferOnly = false;
 
     double lastSpeed = 0;
     double lastTime = Timer.getFPGATimestamp();
     
-    public Shooter()
+    public Shooter(Supplier<Double> angleOffset)
     {
+        angleOffsetTemp = angleOffset;
         bottomRoll.restoreFactoryDefaults();
         topRoll.restoreFactoryDefaults();
         tiltMotor.restoreFactoryDefaults();
@@ -80,14 +77,6 @@ public class Shooter extends SubsystemBase
         tiltMotor.setInverted(false);
 
         SmartDashboard.putBoolean("Subwoofer Only?", false);
-
-        SmartDashboard.putNumber("Kp",Kp);
-        SmartDashboard.putNumber("Ki",Ki);
-        SmartDashboard.putNumber("Kd",Kd);
-        SmartDashboard.putNumber("Ks",Ks);
-        SmartDashboard.putNumber("Kg",Kg);
-        SmartDashboard.putNumber("Kv",Kv);
-        SmartDashboard.putNumber("Ka",Ka);
     }
 
     @Override
@@ -95,12 +84,8 @@ public class Shooter extends SubsystemBase
     {
         subwooferOnly = SmartDashboard.getBoolean("Subwoofer Only?", false);
 
-        target_shooter_speed = calcShooterSpeed();
         target_speaker_angle = calcTiltAngle_Speaker();
 
-        SmartDashboard.putNumber("encoder raw", tiltEncoder.getAbsolutePosition());
-
-        SmartDashboard.putNumber("Target Speed", target_shooter_speed);
         SmartDashboard.putNumber("Speaker angle", target_speaker_angle);
         SmartDashboard.putNumber("dist from speaker", Drive.DistanceToSpeaker());
         
@@ -114,26 +99,26 @@ public class Shooter extends SubsystemBase
                 break;
             case SPEAKER:
                 lift_speaker();
-                spinUp(target_shooter_speed);
+                spinUp(shot_power);
                 TiltToAngle(target_speaker_angle);
                 break;
             case AMP:
                 TiltToAngle(tilt_angle_amp);
                 lift_amp();
                 break;
-            case TRAP_PRE:
-                TiltToAngle(tilt_angle_trap);
-                break;
-            case TRAP_FULL:
+            case TRAP:
                 TiltToAngle(tilt_angle_trap);
                 lift_trap();
                 break;
-            case TRAP_POST:
-                lift_speaker();
             case PASS:
                 TiltToAngle(5.0);
                 spinUp(1);
                 lift_speaker();
+            case SUBWOOFER:
+                lift_speaker();
+                spinUp(shot_power);
+                TiltToAngle(angle_1);
+                break;
             default:
                 break;
         }
@@ -144,22 +129,11 @@ public class Shooter extends SubsystemBase
         SmartDashboard.putNumber("tilt angle", angleMeas);  
 
         anglePVradians = -1 * Units.degreesToRadians(angleMeas - 90);
-
-        
-        p = SmartDashboard.getNumber("Kp",Kp);
-        i = SmartDashboard.getNumber("Ki",Ki);
-        d = SmartDashboard.getNumber("Kd",Kd);
-        
-
-        if(p != Kp) tiltPID.setP(p);
-        if(i != Ki) tiltPID.setI(i);
-        if(d != Kd) tiltPID.setD(i);
-        
     }
     
     public void TiltToAngle(double angleSP)
     {      
-        
+        angleSP -= 20*angleOffsetTemp.get();
         double angleSPradians = -1* Units.degreesToRadians(angleSP - 90);
 
         double PID = tiltPID.calculate(anglePVradians, angleSPradians);
@@ -169,10 +143,9 @@ public class Shooter extends SubsystemBase
         double FF = tiltFF.calculate(tiltPID.getSetpoint().position, tiltPID.getSetpoint().velocity, acceleration);
 
         tiltMotor.setVoltage(-1*(PID + FF));
-        SmartDashboard.putNumber("tilt output", PID+FF);
+
         lastSpeed = tiltPID.getSetpoint().velocity;
         lastTime = Timer.getFPGATimestamp();
-        SmartDashboard.putNumber("tilt angle SP", angleSP);
         SmartDashboard.putNumber("angle PV radians", anglePVradians);
         SmartDashboard.putNumber("angle SP radians", angleSPradians);
     }
@@ -186,14 +159,7 @@ public class Shooter extends SubsystemBase
     public void spinDown() 
     {
         topRoll.set(0);
-    }
-
-    public boolean shooterAtSpeed()
-    {
-        return true;
-    }
-
-    
+    }    
 
     public void lift_speaker()
     {
@@ -203,8 +169,8 @@ public class Shooter extends SubsystemBase
 
     public void lift_amp()
     {
-        stage1.set(Value.kForward);
-        stage2.set(Value.kReverse);
+        stage2.set(Value.kForward);
+        stage1.set(Value.kReverse); //flipped 3/16 9am
     }
 
     public void lift_trap()
@@ -212,33 +178,6 @@ public class Shooter extends SubsystemBase
         stage1.set(Value.kForward);
         stage2.set(Value.kForward);
     }
-
-
-    private double calcShooterSpeed()
-    {
-        return shot_power;
-    }
-    /*
-    private double calcTiltAngle_Speaker()
-    {
-        double distance = subwooferOnly ? 1.3 : Drive.DistanceToSpeaker();
-        double velocity = shot_power*(5800*0.8 / 60) * wheel_diameter*Math.PI;
-        
-        
-        
-        double angle = 
-        (180 / Math.PI ) 
-        * Math.atan(
-            (Math.pow(velocity, 2)
-            - Math.sqrt(Math.pow(velocity,4)-9.8*(
-                9.8*Math.pow(distance,2)+2*Math.pow(velocity,2)*(speaker_height-shooter_height))
-                )
-            )
-            / (9.8*distance)
-        );
-  
-        return -(angle-4);
-    }*/
 
 
     private double calcTiltAngle_Speaker()
@@ -293,7 +232,7 @@ public class Shooter extends SubsystemBase
                                         distance_8, distance_9, 
                                         angle_8, angle_9);
         }
-        return angle_9;
+        return angle_1;
     }
 
     private double linear_interpolation(double input, double X1, double X2, double Y1, double Y2)

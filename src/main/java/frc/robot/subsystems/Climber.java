@@ -1,42 +1,44 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkBase.ControlType;
+
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ClimbConstants.*;
 
+import java.util.function.Supplier;
+
 public class Climber extends SubsystemBase 
 {   
     CANSparkMax climber_left = new CANSparkMax(left_climb_port, MotorType.kBrushless);
     CANSparkMax climber_right = new CANSparkMax(right_climb_port, MotorType.kBrushless);
 
-    RelativeEncoder leftEncoder;
+    Supplier<Float> rollSupplier;
+    //Negative roll = left side low
+    double roll;
+    /*RelativeEncoder leftEncoder;
     RelativeEncoder rightEncoder;
-
-    SparkPIDController leftPID;
-    SparkPIDController rightPID;
 
     DigitalInput left_limit = new DigitalInput(left_limit_port);
     DigitalInput right_limit = new DigitalInput(right_limit_port);
 
     boolean leftLimit;
     boolean rightLimit;
-
+    
     double leftSpeed = 0;
     double rightSpeed = 0;
 
-    double p = 0, i = 0, d = 0, kP = 0, kI = 0, kD = 0;
+    double p = 0, i = 0, d = 0, kP = 0, kI = 0, kD = 0;*/
 
-    public Climber()
+    public Climber(Supplier<Float> rollSupplier)
     {
+        this.rollSupplier = rollSupplier;
+
         climber_left.restoreFactoryDefaults();
         climber_right.restoreFactoryDefaults();
 
@@ -45,39 +47,20 @@ public class Climber extends SubsystemBase
 
         climber_right.setInverted(true);
         
-        leftEncoder = climber_left.getEncoder();
-        rightEncoder = climber_right.getEncoder();
+        //leftEncoder = climber_left.getEncoder();
+        //rightEncoder = climber_right.getEncoder();
 
-        climber_left.setSoftLimit(SoftLimitDirection.kReverse, 0);
-        climber_right.setSoftLimit(SoftLimitDirection.kReverse, 0);
 
-        leftEncoder.setPositionConversionFactor(climber_rotations_per_mm);
-        leftEncoder.setPositionConversionFactor(climber_rotations_per_mm);
+        //rightEncoder.setPositionConversionFactor(climber_rotations_per_mm);
+        //leftEncoder.setPositionConversionFactor(climber_rotations_per_mm);
 
-        leftPID = climber_left.getPIDController();
-        rightPID = climber_right.getPIDController();
-
-        leftPID.setP(kP);
-        leftPID.setI(kI);
-        leftPID.setD(kD);
-
-        
-        SmartDashboard.putNumber("Climb P Gain", kP);
-        SmartDashboard.putNumber("Climb I Gain", kI);
-        SmartDashboard.putNumber("Climb D Gain", kD);
     }
 
     public void periodic() 
     {
-        p = SmartDashboard.getNumber("P Gain", 0);
-        i = SmartDashboard.getNumber("I Gain", 0);
-        d = SmartDashboard.getNumber("D Gain", 0);
-        if((p != kP)) { leftPID.setP(p); rightPID.setP(p); kP = p; }
-        if((i != kI)) { leftPID.setI(i); rightPID.setI(i); kI = i; }
-        if((d != kD)) { leftPID.setD(d); rightPID.setD(d); kD = d; }
-
-
-        leftLimit = false; //left_limit.get();
+        roll = rollSupplier.get();
+        SmartDashboard.putNumber("Roll", roll);
+        /*leftLimit = false; //left_limit.get();
         rightLimit = false; //right_limit.get();
 
         if(leftLimit)
@@ -93,25 +76,45 @@ public class Climber extends SubsystemBase
 
         SmartDashboard.putBoolean("Climber Left Limit", leftLimit);
         SmartDashboard.putBoolean("Climber Right Limit", rightLimit);
-        SmartDashboard.putNumber("Climb PV", leftEncoder.getPosition());
+        SmartDashboard.putNumber("Climb encoder", leftEncoder.getPosition());*/
     }
+
 
     public void hooksUp()
     {
-        climber_left.set(-0.1);
-        climber_right.set(-0.1);
-        /*
-        leftPID.setReference(42, ControlType.kPosition);
-        rightPID.setReference(42, ControlType.kPosition);*/
+        climber_left.set(-1.2*climbSpeed);
+        climber_right.set(-climbSpeed);
+
     }
 
     public void hooksDown()
     {
-        climber_left.set(0.1);
-        climber_right.set(0.1);
-        /*
-        leftPID.setReference(0, ControlType.kPosition);
-        rightPID.setReference(0, ControlType.kPosition);*/
+        if(roll < -2)
+        {
+            climber_left.set(1.2*climbSpeed);
+            climber_right.set(0.5*climbSpeed);
+        }
+        else if(roll > 2)
+        {
+            climber_left.set(1.2*0.5*climbSpeed);
+            climber_right.set(climbSpeed);
+        }
+        else 
+        {
+            climber_left.set(1.2*climbSpeed);
+            climber_right.set(climbSpeed);
+        }
+        
+    }
+
+    public void leftDown()
+    {
+        climber_left.set(climbSpeed);
+    }
+
+    public void rightDown()
+    {
+        climber_right.set(climbSpeed);
     }
 
     public void stop()

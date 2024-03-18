@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import static frc.robot.Constants.DriveConstants.*;
+
+import java.util.function.Supplier;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -19,7 +22,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
-import edu.wpi.first.math.kinematics.DifferentialDriveWheelPositions;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -52,8 +54,7 @@ public class Drive extends SubsystemBase
     private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(Ks, Kv);
     private final SimpleMotorFeedforward rightFeedforward = new SimpleMotorFeedforward(Ks, Kv);
 
-    //Gyro
-    private static final AHRS navX = new AHRS();
+    Supplier<Rotation2d> rotationSupplier;
 
     //Kinematics object converts between Chassis Speeds (x, y, angle) and wheel speeds (left wheels, right wheels)
     //Since we have tank drive, y = 0 because we can't move sideways
@@ -71,8 +72,9 @@ public class Drive extends SubsystemBase
     Pose2d LL_rear_pose;
 
     //Constructor
-    public Drive()
+    public Drive(Supplier<Rotation2d> rotationSupplier)
     {
+        this.rotationSupplier = rotationSupplier;
         
         frontLeft.restoreFactoryDefaults();
         frontLeft.setIdleMode(IdleMode.kBrake);
@@ -82,6 +84,11 @@ public class Drive extends SubsystemBase
         backLeft.setIdleMode(IdleMode.kCoast);
         backRight.restoreFactoryDefaults();
         backRight.setIdleMode(IdleMode.kCoast);
+
+        frontLeft.setSmartCurrentLimit(40);
+        frontRight.setSmartCurrentLimit(40);
+        backLeft.setSmartCurrentLimit(40);
+        backRight.setSmartCurrentLimit(40);
 
         //Set the rear drives to follow the front drives
         backLeft.follow(frontLeft);
@@ -93,7 +100,7 @@ public class Drive extends SubsystemBase
         //Initialize the pose estimator
         m_odometry = new DifferentialDrivePoseEstimator(
             m_kinematics, 
-            navX.getRotation2d(),
+            rotationSupplier.get(),
             -getLeftEncoderPosition(), 
             -getRightEncoderPosition(),
             new Pose2d(new Translation2d(1.37, 5.55), new Rotation2d(Math.PI)),
@@ -129,14 +136,17 @@ public class Drive extends SubsystemBase
     //Constantly update the odometry with the gyro and encoders. Update the dashboard
     public void periodic() 
     {
+        SmartDashboard.putNumber("Gyro", rotationSupplier.get().getDegrees());
         SmartDashboard.putBoolean("LL Front valid?", LL_front_has_pose);
         SmartDashboard.putBoolean("LL Rear valid?", LL_rear_has_pose);
         
-        //LL_front_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_1_name);
-        LL_rear_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_2_name);
-        
+        if(DriverStation.isTeleop())
+        {
+            LL_front_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_1_name, field);
+            LL_rear_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_2_name, field);
+        }
 
-        m_odometry.update(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition());
+        m_odometry.update(rotationSupplier.get(), -getLeftEncoderPosition(), -getRightEncoderPosition());
         field.setRobotPose(m_odometry.getEstimatedPosition());
 
         
@@ -172,7 +182,8 @@ public class Drive extends SubsystemBase
     public boolean turnToAngle(double angle)
     {
         anglePID.enableContinuousInput(-180,180);
-        anglePID.setTolerance(2);
+        anglePID.setTolerance(4);
+        
         anglePID.setIZone(10);
 
         double turnRate = anglePID.calculate(poseSupplier().getRotation().getDegrees(), angle);
@@ -186,7 +197,7 @@ public class Drive extends SubsystemBase
 
     public Pose2d poseSupplier() { return m_odometry.getEstimatedPosition(); }
 
-    void poseSetter(Pose2d p) {m_odometry.resetPosition(navX.getRotation2d(), -getLeftEncoderPosition(), -getRightEncoderPosition(), p); }
+    void poseSetter(Pose2d p) {m_odometry.resetPosition(rotationSupplier.get(), -getLeftEncoderPosition(), -getRightEncoderPosition(), p); }
 
     DifferentialDriveWheelSpeeds supplier_wheel_speeds = new DifferentialDriveWheelSpeeds();
     ChassisSpeeds speedSupplier() 
@@ -200,8 +211,6 @@ public class Drive extends SubsystemBase
     double getRightEncoderPosition() { return rightEncoder.getPosition() * kEncoderDistancePerPulse; }
     double getLeftEncoderVelocity() { return leftEncoder.getVelocity() * kEncoderDistancePerPulse / 60; }
     double getRightEncoderVelocity() { return rightEncoder.getVelocity() * kEncoderDistancePerPulse / 60; }
-
-    Rotation2d getGyro() { return navX.getRotation2d(); }
     
     public static void setAutonPID() 
     { 
@@ -223,26 +232,31 @@ public class Drive extends SubsystemBase
 
         double xToSpeaker;
         double yToSpeaker;
+        double fudge;
         var alliance = DriverStation.getAlliance();
                 if (alliance.isPresent()) {
                     if (alliance.get() == DriverStation.Alliance.Blue)
                     {
                         yToSpeaker = blue_speaker_y - currentY;
                         xToSpeaker = blue_speaker_x - currentX;
+                        fudge = 0.03;
                     }
                     else
                     {
                         yToSpeaker = red_speaker_y - currentY;
                         xToSpeaker = red_speaker_x - currentX;
+                        fudge = 0;
                     }
                 }
                 else
                 {
                     xToSpeaker = 1;
                     yToSpeaker = 0;
+                    fudge = 0;
                 }
 
-        return Math.sqrt(xToSpeaker*xToSpeaker + yToSpeaker*yToSpeaker);
+                
+        return Math.sqrt(xToSpeaker*xToSpeaker + yToSpeaker*yToSpeaker - fudge);
     }
 
     public static double AngleToSpeaker()
@@ -265,7 +279,7 @@ public class Drive extends SubsystemBase
             {
                 yToSpeaker = red_speaker_y - currentY;
                 xToSpeaker = red_speaker_x - currentX;
-                return 180 + Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
+                return Units.radiansToDegrees(Math.atan2(yToSpeaker, xToSpeaker));
             }
         }
         else return 0;

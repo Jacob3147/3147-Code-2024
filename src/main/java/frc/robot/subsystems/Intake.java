@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,7 +26,9 @@ public class Intake extends SubsystemBase
     DigitalInput m_beamBreak = new DigitalInput(intake_sensor_port);
     boolean sensorOverride = false;
 
-    double haveNoteCounts = 0;
+    int haveNoteCounts = 0;
+    int haveNoteMin;
+    double intake_speed;
 
     public Intake()
     {
@@ -45,13 +48,24 @@ public class Intake extends SubsystemBase
             haveNoteCounts = 0;
         }
 
-        haveNote = haveNoteCounts >= 2;
+        if(DriverStation.isAutonomousEnabled())
+        {
+            haveNoteMin = 5;
+            intake_speed = 0.7;
+        }
+        else
+        {
+            intake_speed = intake_fwd_speed;
+            haveNoteMin = 2;
+        }
+
+        haveNote = haveNoteCounts >= haveNoteMin;
         SmartDashboard.putBoolean("Have note?", haveNote);
     }
 
     public void intake_note()
     {
-        intake.set(intake_fwd_speed);
+        intake.set(intake_speed);
         intakeSolenoid.set(Value.kReverse);
     }
 
