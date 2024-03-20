@@ -97,10 +97,31 @@ public class RobotContainer {
     {
         m_driverController.leftTrigger(0.5).whileTrue(m_IntakeCommand);
 
-        
-                
+        m_driverController.a().and(() -> m_ShooterSubsystem.state != ShooterState.SPEAKER).whileTrue(
+            Commands.sequence(
+                Commands.parallel(
+                    Commands.sequence(
+                        Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AWAIT_HANDOFF),
+                        Commands.runOnce(() -> m_ShooterSubsystem.spinUp(amptrap_handoff_shooter_speed)),
+                        Commands.waitSeconds(0.1),
+                        Commands.runOnce(() -> m_IntakeSubsystem.feed()),
+                        Commands.waitSeconds(amptrap_handoff_feed_time), 
+                        Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
+                        Commands.runOnce(() -> m_IntakeSubsystem.stop()),
+                        Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AMP)
+                    ),
+                    m_DriveSubsystem.pathfindToAmp()
+                ),
+                Commands.sequence(
+                    Commands.runOnce(() -> m_ShooterSubsystem.spinUp(amp_deposit_speed)),
+                    Commands.waitSeconds(amptrap_deposit_time),
+                    Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
+                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
+                )
+            )
+        );
 
-        m_driverController.a().whileTrue(m_SpeakerAim);
+        m_driverController.a().and(() -> m_ShooterSubsystem.state == ShooterState.SPEAKER).whileTrue(m_SpeakerAim);
 
         m_driverController.x().onTrue(Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.SPEAKER));
 

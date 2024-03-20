@@ -4,14 +4,21 @@ import static frc.robot.Constants.DriveConstants.*;
 
 import java.util.function.Supplier;
 
+import javax.lang.model.util.ElementScanner14;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -131,7 +138,13 @@ public class Drive extends SubsystemBase
     }
 
 
-
+    public Command pathfindToAmp()
+    {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("teleop-amp"),
+            new PathConstraints(1, 1, 1, 1)
+        );
+    }
 
     //Constantly update the odometry with the gyro and encoders. Update the dashboard
     public void periodic() 
