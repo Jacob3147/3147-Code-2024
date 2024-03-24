@@ -122,7 +122,7 @@ public class Drive extends SubsystemBase
             this::speedSupplier,//Provides robot speed
             this::setDriveMotors,//Drive robot based on chassis speeds,
             0.02,
-            new ReplanningConfig(false, false),
+            new ReplanningConfig(true, true),
             () -> { //mini function that returns true on red alliance
                 var alliance = DriverStation.getAlliance();
                 if (alliance.isPresent()) {
@@ -131,20 +131,13 @@ public class Drive extends SubsystemBase
                 return false;
             },
             this);
-
+        
         //put the trajectory onto the fake field
         PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
         SmartDashboard.putData("Field", field);
     }
 
 
-    public Command pathfindToAmp()
-    {
-        return AutoBuilder.pathfindThenFollowPath(
-            PathPlannerPath.fromPathFile("teleop-amp"),
-            new PathConstraints(1, 1, 1, 1)
-        );
-    }
 
     //Constantly update the odometry with the gyro and encoders. Update the dashboard
     public void periodic() 
@@ -245,31 +238,27 @@ public class Drive extends SubsystemBase
 
         double xToSpeaker;
         double yToSpeaker;
-        double fudge;
         var alliance = DriverStation.getAlliance();
                 if (alliance.isPresent()) {
                     if (alliance.get() == DriverStation.Alliance.Blue)
                     {
                         yToSpeaker = blue_speaker_y - currentY;
                         xToSpeaker = blue_speaker_x - currentX;
-                        fudge = 0.03;
                     }
                     else
                     {
                         yToSpeaker = red_speaker_y - currentY;
                         xToSpeaker = red_speaker_x - currentX;
-                        fudge = 0;
                     }
                 }
                 else
                 {
                     xToSpeaker = 1;
                     yToSpeaker = 0;
-                    fudge = 0;
                 }
 
                 
-        return Math.sqrt(xToSpeaker*xToSpeaker + yToSpeaker*yToSpeaker - fudge);
+        return Math.sqrt(xToSpeaker*xToSpeaker + yToSpeaker*yToSpeaker);
     }
 
     public static double AngleToSpeaker()

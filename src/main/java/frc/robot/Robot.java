@@ -7,6 +7,8 @@ package frc.robot;
 
 import org.littletonrobotics.urcl.URCL;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
+
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -47,7 +49,8 @@ public class Robot extends TimedRobot {
     m_Compressor.enableDigital();
     URCL.start();
     
-
+    
+    FollowPathCommand.warmupCommand().schedule();
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();

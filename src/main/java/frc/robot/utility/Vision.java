@@ -35,19 +35,19 @@ public class Vision
         }
         if (posediff < 0.2)
         {
-            xyStdDev = 0.4;
-            angleStdDev = 6;
+            xyStdDev = 0.5;
+            angleStdDev = 15;
         }
         else if (posediff < 0.5)
         {
             xyStdDev = 1;
-            angleStdDev = 12;
+            angleStdDev = 30;
         }
         else 
         {
             return false;
         }
-        
+        SmartDashboard.putNumber(limelight+" posediff", posediff);
        
         Drive.m_odometry.setVisionMeasurementStdDevs(VecBuilder.fill(xyStdDev, xyStdDev, Units.degreesToRadians(angleStdDev)));
         Drive.m_odometry.addVisionMeasurement(pose, timestamp);

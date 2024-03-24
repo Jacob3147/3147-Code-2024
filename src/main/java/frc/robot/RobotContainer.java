@@ -82,7 +82,6 @@ public class RobotContainer {
                     Commands.runOnce(() -> m_IntakeSubsystem.stop())                 
                 )
         );
-
         
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("autochooser", autoChooser);
@@ -97,34 +96,9 @@ public class RobotContainer {
     {
         m_driverController.leftTrigger(0.5).whileTrue(m_IntakeCommand);
 
-        m_driverController.a().and(() -> m_ShooterSubsystem.state != ShooterState.SPEAKER).whileTrue(
-            Commands.sequence(
-                Commands.parallel(
-                    Commands.sequence(
-                        Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AWAIT_HANDOFF),
-                        Commands.runOnce(() -> m_ShooterSubsystem.spinUp(amptrap_handoff_shooter_speed)),
-                        Commands.waitSeconds(0.1),
-                        Commands.runOnce(() -> m_IntakeSubsystem.feed()),
-                        Commands.waitSeconds(amptrap_handoff_feed_time), 
-                        Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
-                        Commands.runOnce(() -> m_IntakeSubsystem.stop()),
-                        Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AMP)
-                    ),
-                    m_DriveSubsystem.pathfindToAmp()
-                ),
-                Commands.sequence(
-                    Commands.runOnce(() -> m_ShooterSubsystem.spinUp(amp_deposit_speed)),
-                    Commands.waitSeconds(amptrap_deposit_time),
-                    Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
-                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
-                )
-            )
-        );
-
         m_driverController.a().and(() -> m_ShooterSubsystem.state == ShooterState.SPEAKER).whileTrue(m_SpeakerAim);
 
         m_driverController.x().onTrue(Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.SPEAKER));
-
         
         m_driverController.y().onTrue(Commands.sequence(
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AWAIT_HANDOFF),
@@ -137,7 +111,18 @@ public class RobotContainer {
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AMP)
         ));
 
-        m_driverController.b().onTrue(Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.SUBWOOFER));
+        m_driverController.b().onTrue(Commands.sequence(
+            Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.AWAIT_HANDOFF),
+            Commands.runOnce(() -> m_ShooterSubsystem.spinUp(amptrap_handoff_shooter_speed)),
+            Commands.waitSeconds(0.1),
+            Commands.runOnce(() -> m_IntakeSubsystem.feed()),
+            Commands.waitSeconds(amptrap_handoff_feed_time), 
+            Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
+            Commands.runOnce(() -> m_IntakeSubsystem.stop()),
+            Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.TRAP)
+        ));
+
+        //m_driverController.b().onTrue(Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.SUBWOOFER));
         
         m_driverController.rightTrigger(0.5).and(
             () -> m_ShooterSubsystem.state == ShooterState.SPEAKER || m_ShooterSubsystem.state == ShooterState.PASS || m_ShooterSubsystem.state == ShooterState.SUBWOOFER)
@@ -163,9 +148,8 @@ public class RobotContainer {
                 .onTrue(Commands.sequence(
                     Commands.runOnce(() -> m_ShooterSubsystem.spinUp(trap_deposit_speed)),
                     Commands.waitSeconds(amptrap_deposit_time),
-                    Commands.runOnce(() -> m_ShooterSubsystem.spinDown()),
-                    Commands.waitSeconds(3),
-                    Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.NEUTRAL)
+                    Commands.runOnce(() -> m_ShooterSubsystem.spinDown())
+
                 ));
 
 

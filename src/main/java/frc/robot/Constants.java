@@ -44,7 +44,7 @@ public final class Constants
         public static final double kWheelDiameter = 0.1524; // meters
         public static final double gearReduction = 8.45;
 
-        public static final double drive_motor_current_limit = 60;
+        public static final double drive_motor_current_limit = 40;
         public static final int kEncoderResolution = 1;
         public static final double kEncoderDistancePerPulse = (kWheelDiameter * Math.PI) / (gearReduction * (double) kEncoderResolution);
 
@@ -64,7 +64,7 @@ public final class Constants
         public static final double Kd_tele = 0; //0.1
 
         public static final double blue_speaker_x = 0;
-        public static final double red_speaker_x = Units.feetToMeters(54.25);
+        public static final double red_speaker_x = 16.46;
         public static final double blue_speaker_y = 5.5;
         public static final double red_speaker_y = 5.5;
     }
@@ -103,13 +103,10 @@ public final class Constants
         public static final double maxA = 1;
 
         public static final double tilt_angle_amp = 30;
-        public static final double tilt_angle_trap = -45; //abs(angle) < 35 breaks height
+        public static final double tilt_angle_trap = -59; //abs(angle) < 35 breaks height
         public static final double tilt_angle_rest = -50;
 
-        public static final double shooter_height = Units.inchesToMeters(27);
-        public static final double speaker_height = 2;
         public static final double shot_power = 1;
-        public static final double wheel_diameter = Units.inchesToMeters(4);
 
         public static final double distance_1 = 1.3;
         public static final double angle_1 = -48;
