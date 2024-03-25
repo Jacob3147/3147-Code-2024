@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.ShooterState;
+import frc.robot.utility.Vision;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Intake;
@@ -51,7 +52,8 @@ public class RobotContainer {
     private final Drive m_DriveSubsystem = new Drive(gyroRotation);
     private final Climber m_ClimberSubsystem = new Climber(rollSupplier);
     private final Intake m_IntakeSubsystem = new Intake();
-    private final Shooter m_ShooterSubsystem = new Shooter(angleOffset);    
+    private final Shooter m_ShooterSubsystem = new Shooter(angleOffset);   
+    private final Vision m_visionSubsystem = new Vision(m_DriveSubsystem); 
     
 
 
@@ -59,6 +61,7 @@ public class RobotContainer {
     private final DriveTeleopCommand m_DriveCommand = new DriveTeleopCommand(m_DriveSubsystem, xSpeedSupplier, turnSpeedSupplier);
     private final SpeakerAim_byPose m_SpeakerAim = new SpeakerAim_byPose(m_DriveSubsystem);
     private final IntakeCommand m_IntakeCommand = new IntakeCommand(m_IntakeSubsystem);
+
 
     private final SendableChooser<Command> autoChooser;
 
@@ -122,7 +125,7 @@ public class RobotContainer {
             Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.TRAP)
         ));
 
-        //m_driverController.b().onTrue(Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.SUBWOOFER));
+        m_driverController.rightBumper().onTrue(Commands.runOnce(() -> m_ShooterSubsystem.state = ShooterState.SUBWOOFER));
         
         m_driverController.rightTrigger(0.5).and(
             () -> m_ShooterSubsystem.state == ShooterState.SPEAKER || m_ShooterSubsystem.state == ShooterState.PASS || m_ShooterSubsystem.state == ShooterState.SUBWOOFER)
@@ -171,12 +174,15 @@ public class RobotContainer {
         ));
 
 
+        m_driverController.povUp().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.Up()));
+        m_driverController.povDown().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.Down()));
+        m_driverController.povLeft().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.SeekZero()));
 
-        m_driverController.povUp().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksUp()));
+        /*m_driverController.povUp().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksUp()));
         m_driverController.povDown().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksDown()));
         m_driverController.povLeft().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.leftDown()));
         m_driverController.povRight().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.rightDown()));
-        m_driverController.povCenter().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.stop()));
+        m_driverController.povCenter().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.stop()));*/
        
         
     }

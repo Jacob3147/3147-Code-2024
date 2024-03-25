@@ -71,7 +71,7 @@ public class Drive extends SubsystemBase
     //Pose2d is a combination of a Rotation2d and a Translation2d
     public static DifferentialDrivePoseEstimator m_odometry;
 
-    private Field2d field = new Field2d();
+    public Field2d field = new Field2d();
     
     boolean LL_front_has_pose = false;
     boolean LL_rear_has_pose = false;
@@ -92,10 +92,10 @@ public class Drive extends SubsystemBase
         backRight.restoreFactoryDefaults();
         backRight.setIdleMode(IdleMode.kCoast);
 
-        frontLeft.setSmartCurrentLimit(40);
-        frontRight.setSmartCurrentLimit(40);
-        backLeft.setSmartCurrentLimit(40);
-        backRight.setSmartCurrentLimit(40);
+        frontLeft.setSmartCurrentLimit(drive_motor_current_limit);
+        frontRight.setSmartCurrentLimit(drive_motor_current_limit);
+        backLeft.setSmartCurrentLimit(drive_motor_current_limit);
+        backRight.setSmartCurrentLimit(drive_motor_current_limit);
 
         //Set the rear drives to follow the front drives
         backLeft.follow(frontLeft);
@@ -114,13 +114,13 @@ public class Drive extends SubsystemBase
             VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
             VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10))); 
         
-    
+        
         //This is how PathPlanner will interact with the drivetrain
         AutoBuilder.configureLTV(
             this::poseSupplier, //Provides robot position on field
             this::poseSetter,   //Update robot position to a known position
             this::speedSupplier,//Provides robot speed
-            this::setDriveMotors,//Drive robot based on chassis speeds,
+            this::setDriveMotors,//Drive robot based on chassis speeds
             0.02,
             new ReplanningConfig(true, true),
             () -> { //mini function that returns true on red alliance
@@ -135,6 +135,7 @@ public class Drive extends SubsystemBase
         //put the trajectory onto the fake field
         PathPlannerLogging.setLogActivePathCallback((poses) -> field.getObject("path").setPoses(poses));
         SmartDashboard.putData("Field", field);
+
     }
 
 
@@ -146,11 +147,11 @@ public class Drive extends SubsystemBase
         SmartDashboard.putBoolean("LL Front valid?", LL_front_has_pose);
         SmartDashboard.putBoolean("LL Rear valid?", LL_rear_has_pose);
         
-        if(DriverStation.isTeleop())
+        /*if(DriverStation.isTeleop())
         {
             LL_front_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_1_name, field);
             LL_rear_has_pose = Vision.EvaluateLimelightNew(LimelightConstants.limelight_2_name, field);
-        }
+        }*/
 
         m_odometry.update(rotationSupplier.get(), -getLeftEncoderPosition(), -getRightEncoderPosition());
         field.setRobotPose(m_odometry.getEstimatedPosition());
@@ -206,7 +207,7 @@ public class Drive extends SubsystemBase
     void poseSetter(Pose2d p) {m_odometry.resetPosition(rotationSupplier.get(), -getLeftEncoderPosition(), -getRightEncoderPosition(), p); }
 
     DifferentialDriveWheelSpeeds supplier_wheel_speeds = new DifferentialDriveWheelSpeeds();
-    ChassisSpeeds speedSupplier() 
+    public ChassisSpeeds speedSupplier() 
     {
         supplier_wheel_speeds.leftMetersPerSecond = -getLeftEncoderVelocity();
         supplier_wheel_speeds.rightMetersPerSecond = -getRightEncoderVelocity();

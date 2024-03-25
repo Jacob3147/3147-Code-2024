@@ -44,7 +44,7 @@ public final class Constants
         public static final double kWheelDiameter = 0.1524; // meters
         public static final double gearReduction = 8.45;
 
-        public static final double drive_motor_current_limit = 40;
+        public static final int drive_motor_current_limit = 40;
         public static final int kEncoderResolution = 1;
         public static final double kEncoderDistancePerPulse = (kWheelDiameter * Math.PI) / (gearReduction * (double) kEncoderResolution);
 
