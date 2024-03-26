@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 
 
@@ -97,6 +98,7 @@ public class RobotContainer {
 
     public void configureBindings()
     {
+
         m_driverController.leftTrigger(0.5).whileTrue(m_IntakeCommand);
 
         m_driverController.a().and(() -> m_ShooterSubsystem.state == ShooterState.SPEAKER).whileTrue(m_SpeakerAim);
@@ -173,10 +175,14 @@ public class RobotContainer {
 
         ));
 
+        m_driverController.povUp().whileTrue(m_DriveSubsystem.sysIdQuaistatic(SysIdRoutine.Direction.kForward));
+        m_driverController.povDown().whileTrue(m_DriveSubsystem.sysIdQuaistatic(SysIdRoutine.Direction.kReverse));
+        m_driverController.povLeft().whileTrue(m_DriveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        m_driverController.povRight().whileTrue(m_DriveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        m_driverController.povUp().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.Up()));
+        /*m_driverController.povUp().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.Up()));
         m_driverController.povDown().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.Down()));
-        m_driverController.povLeft().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.SeekZero()));
+        m_driverController.povLeft().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.SeekZero()));*/
 
         /*m_driverController.povUp().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksUp()));
         m_driverController.povDown().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksDown()));
