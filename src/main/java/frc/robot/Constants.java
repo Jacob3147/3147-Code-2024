@@ -51,8 +51,9 @@ public final class Constants
         public static final double kDriveControllerDeadband = 0.08;
 
         //Drive feedforward constants
-        public static final double Ks = 0.5;
-        public static final double Kv = 1.8;
+        public static final double Ks = 0.3;
+        public static final double Kv = 3.24;
+        public static final double Ka = 0.45;
         
         //Drive feedback constants
         public static final double Kp_auto = 1; //1 //PID

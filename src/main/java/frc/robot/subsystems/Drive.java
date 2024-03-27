@@ -36,6 +36,7 @@ import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.LimelightConstants;
@@ -73,8 +74,8 @@ public class Drive extends SubsystemBase
     private final static PIDController anglePID = new PIDController(0.1,0.02,0);
 
     //Feedforward Controllers
-    private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(Ks, Kv);
-    private final SimpleMotorFeedforward rightFeedforward = new SimpleMotorFeedforward(Ks, Kv);
+    private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(Ks, Kv, Ka);
+    private final SimpleMotorFeedforward rightFeedforward = new SimpleMotorFeedforward(Ks, Kv, Ka);
 
     Supplier<Rotation2d> rotationSupplier;
 
@@ -131,11 +132,16 @@ public class Drive extends SubsystemBase
         
         
         //This is how PathPlanner will interact with the drivetrain
+        //Added Q and R tuning knobs to try and prevent oscillation. Defaults are:
+        //Q = max error. Decrease to make it penalize error more [0.0625 meters, 0.125 meters, 2 radians]
+        //R = max control effort. Decrease to make it penalize control effort more [1 meter/sec, 2 radians/sec]
         AutoBuilder.configureLTV(
             this::poseSupplier, //Provides robot position on field
             this::poseSetter,   //Update robot position to a known position
             this::speedSupplier,//Provides robot speed
             this::setDriveMotors,//Drive robot based on chassis speeds
+            VecBuilder.fill(0.0625, 0.125, 2),
+            VecBuilder.fill(1,2),
             0.02,
             new ReplanningConfig(true, true),
             () -> { //mini function that returns true on red alliance
@@ -215,18 +221,24 @@ public class Drive extends SubsystemBase
 
     }
 
+    double left_prev;
+    double right_prev;
+    double time_prev;
     //Controls the robot using chassis speeds
     public void setDriveMotors(ChassisSpeeds speeds)
     {
+        double time = Timer.getFPGATimestamp();
         //Convert the chassis speeds to wheel speeds
         DifferentialDriveWheelSpeeds wheelSpeeds = m_kinematics.toWheelSpeeds(speeds);
 
         double target_left_velocity = -1*wheelSpeeds.leftMetersPerSecond;
         double target_right_velocity = -1*wheelSpeeds.rightMetersPerSecond;
-
         
-        double leftFFoutput = leftFeedforward.calculate(target_left_velocity);
-        double rightFFoutput = rightFeedforward.calculate(target_right_velocity);
+        double target_left_accel = (target_left_velocity - left_prev) / (time - time_prev);
+        double target_right_accel = (target_right_velocity - right_prev) / (time - time_prev);
+        
+        double leftFFoutput = leftFeedforward.calculate(target_left_velocity, target_left_accel, 0.02);
+        double rightFFoutput = rightFeedforward.calculate(target_right_velocity, target_right_accel, 0.02);
 
         double leftPIDoutput = leftPIDcontroller.calculate(getLeftEncoderVelocity(), target_left_velocity);
         double rightPIDoutput = rightPIDcontroller.calculate(getRightEncoderVelocity(), target_right_velocity);
@@ -235,6 +247,10 @@ public class Drive extends SubsystemBase
         SmartDashboard.putNumber("target right", target_right_velocity);
         frontLeft.setVoltage(leftFFoutput + leftPIDoutput);
         frontRight.setVoltage(rightFFoutput + rightPIDoutput);
+
+        left_prev = target_left_velocity;
+        right_prev = target_right_velocity;
+        time_prev = time;
     };
 
     ChassisSpeeds turnToAngle_speeds = new ChassisSpeeds(0,0,0);
