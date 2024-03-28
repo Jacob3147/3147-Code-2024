@@ -69,6 +69,7 @@ public class RobotContainer {
 
     public RobotContainer() 
     {
+    
         m_DriveSubsystem.setDefaultCommand(m_DriveCommand);
 
         NamedCommands.registerCommand("aim", m_SpeakerAim);
@@ -174,21 +175,19 @@ public class RobotContainer {
                 )
 
         ));
-
-        m_driverController.povUp().whileTrue(m_DriveSubsystem.sysIdQuaistatic(SysIdRoutine.Direction.kForward));
-        m_driverController.povDown().whileTrue(m_DriveSubsystem.sysIdQuaistatic(SysIdRoutine.Direction.kReverse));
-        m_driverController.povLeft().whileTrue(m_DriveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        m_driverController.povRight().whileTrue(m_DriveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        /*m_driverController.povUp().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.Up()));
+        
+        /*
+        m_driverController.povUp().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.Up()));
         m_driverController.povDown().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.Down()));
-        m_driverController.povLeft().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.SeekZero()));*/
-
-        /*m_driverController.povUp().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksUp()));
+        m_driverController.povLeft().whileTrue(m_ClimberSubsystem.SeekZero());
+        m_driverController.povLeft().onFalse(Commands.runOnce(() -> m_ClimberSubsystem.stop()));
+        */
+    
+        m_driverController.povUp().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksUp()));
         m_driverController.povDown().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.hooksDown()));
         m_driverController.povLeft().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.leftDown()));
         m_driverController.povRight().whileTrue(Commands.runOnce(() -> m_ClimberSubsystem.rightDown()));
-        m_driverController.povCenter().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.stop()));*/
+        m_driverController.povCenter().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.stop()));
        
         
     }

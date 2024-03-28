@@ -37,7 +37,7 @@ public final class Constants
         public static final int backRight_Motor_Port = 4;
 
         //Drive physical properties
-        public static final double kMaxSpeed = 5.2; // meters per second
+        public static final double kMaxSpeed = 3.7; // meters per second
         public static final double kMaxAccel = 3; // meters per second per second
         public static final double kMaxAngularSpeed = 2 * Math.PI; //rotations per second
         public static final double kTrackWidth = 0.5588; // meters
@@ -51,18 +51,22 @@ public final class Constants
         public static final double kDriveControllerDeadband = 0.08;
 
         //Drive feedforward constants
-        public static final double Ks = 0.3;
-        public static final double Kv = 3.24;
-        public static final double Ka = 0.45;
+        public static final double Ks_r = 0.4;
+        public static final double Kv_r = 12 / kMaxSpeed;
+        public static final double Ka_r = 0.2;
+
+        public static final double Ks_l = 0.3;
+        public static final double Kv_l = 12 / kMaxSpeed;
+        public static final double Ka_l = 0.2;
         
         //Drive feedback constants
         public static final double Kp_auto = 1; //1 //PID
         public static final double Ki_auto = 0;
         public static final double Kd_auto = 0; //0
 
-        public static final double Kp_tele = 1; 
+        public static final double Kp_tele = 2; 
         public static final double Ki_tele = 0;
-        public static final double Kd_tele = 0; //0.1
+        public static final double Kd_tele = 0; 
 
         public static final double blue_speaker_x = 0;
         public static final double red_speaker_x = 16.46;

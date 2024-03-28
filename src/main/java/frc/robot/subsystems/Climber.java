@@ -10,6 +10,8 @@ import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ClimbConstants.*;
 
@@ -39,7 +41,7 @@ public class Climber extends SubsystemBase
     double leftSpeed = 0;
     double rightSpeed = 0;
 
-    double p = 0, i = 0, d = 0, kP = 0, kI = 0, kD = 0;
+    double p = 0.05;
 
     public Climber(Supplier<Float> rollSupplier)
     {
@@ -64,38 +66,10 @@ public class Climber extends SubsystemBase
 
         left_PID.setP(p);
         right_PID.setP(p);
-        left_PID.setI(i);
-        right_PID.setI(i);
-        left_PID.setD(d);
-        right_PID.setD(d);
-
-        SmartDashboard.putNumber("Climb p", p);
-        SmartDashboard.putNumber("Climb i", i);
-        SmartDashboard.putNumber("Climb d", d);
     }
 
     public void periodic() 
     {
-        kP = SmartDashboard.getNumber("Climb p", p);
-        kI = SmartDashboard.getNumber("Climb i", i);
-        kD = SmartDashboard.getNumber("Climb d", d);
-
-        if(kP != p)
-        {
-            left_PID.setP(kP);
-            right_PID.setP(kP);
-        }
-        if(kI != i)
-        {
-            left_PID.setI(kI);
-            right_PID.setI(kI);
-        }
-        if(kD != d)
-        {
-            left_PID.setD(kD);
-            right_PID.setD(kD);
-        }
-
         roll = rollSupplier.get();
         SmartDashboard.putNumber("Roll", roll);
         leftLimit = left_limit.get();
@@ -117,26 +91,23 @@ public class Climber extends SubsystemBase
 
     public void Up()
     {
-        left_PID.setReference(3, ControlType.kPosition);
-        right_PID.setReference(3, ControlType.kPosition);
+        left_PID.setReference(-150, ControlType.kPosition);
+        //right_PID.setReference(-190, ControlType.kPosition);
     }
 
     public void Down()
     {
-        left_PID.setReference(1, ControlType.kPosition);
-        right_PID.setReference(1, ControlType.kPosition);
+        left_PID.setReference(-50, ControlType.kPosition);
+        //right_PID.setReference(-5, ControlType.kPosition);
     }
 
-    public void SeekZero()
+    public Command SeekZero()
     {
-        if(!leftLimit)
-        {
-            left_PID.setReference(-0.03, ControlType.kDutyCycle);
-        }
-        else
-        {
-            left_PID.setReference(0, ControlType.kDutyCycle);
-        }
+        return Commands.run(
+            () -> left_PID.setReference(0.05, ControlType.kDutyCycle))
+            .until(() -> leftLimit)
+            .andThen(() -> left_PID.setReference(0, ControlType.kDutyCycle));
+
     }
 
     public void hooksUp()

@@ -30,30 +30,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.MutableMeasure;
-import edu.wpi.first.units.Velocity;
-import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.LimelightConstants;
-import frc.robot.utility.Vision;
-import static edu.wpi.first.units.MutableMeasure.mutable;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
-import edu.wpi.first.units.Velocity;
-import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import java.util.function.DoubleSupplier;
 
 public class Drive extends SubsystemBase
 {
@@ -74,8 +55,8 @@ public class Drive extends SubsystemBase
     private final static PIDController anglePID = new PIDController(0.1,0.02,0);
 
     //Feedforward Controllers
-    private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(Ks, Kv, Ka);
-    private final SimpleMotorFeedforward rightFeedforward = new SimpleMotorFeedforward(Ks, Kv, Ka);
+    private final SimpleMotorFeedforward leftFeedforward = new SimpleMotorFeedforward(Ks_l, Kv_l, Ka_l);
+    private final SimpleMotorFeedforward rightFeedforward = new SimpleMotorFeedforward(Ks_r, Kv_r, Ka_r);
 
     Supplier<Rotation2d> rotationSupplier;
 
@@ -160,50 +141,14 @@ public class Drive extends SubsystemBase
         
     }
 
-    private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
-    // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
-    private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
-    // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
-    private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
-
-    // Create a new SysId routine for characterizing the drive.
-    private final SysIdRoutine m_sysIdRoutine =
-        new SysIdRoutine(
-            // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-            new SysIdRoutine.Config(Volts.of(0.5).per(Second), Volts.of(7), Seconds.of(10)),
-            new SysIdRoutine.Mechanism(
-                (Measure<Voltage> volts) -> {
-                    frontLeft.set(volts.in(Volts)*12/RobotController.getBatteryVoltage());
-                    frontRight.set(volts.in(Volts)*12/RobotController.getBatteryVoltage());
-                },
-                log -> {
-                    log.motor("left")
-                        .voltage(m_appliedVoltage.mut_replace(frontLeft.get()*RobotController.getBatteryVoltage(), Volts))
-                        .linearPosition(m_distance.mut_replace(getLeftEncoderPosition(), Meters))
-                        .linearVelocity(m_velocity.mut_replace(getLeftEncoderVelocity(), MetersPerSecond));
-                    log.motor("right")
-                        .voltage(m_appliedVoltage.mut_replace(frontRight.get()*RobotController.getBatteryVoltage(), Volts))
-                        .linearPosition(m_distance.mut_replace(getRightEncoderPosition(), Meters))
-                        .linearVelocity(m_velocity.mut_replace(getRightEncoderVelocity(), MetersPerSecond));
-                },
-                this
-          )
-    );
-
-    public Command sysIdQuaistatic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutine.quasistatic(direction);
-    }
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutine.dynamic(direction);
-    }
 
     
     //Constantly update the odometry with the gyro and encoders. Update the dashboard
     public void periodic() 
     {
         SmartDashboard.putNumber("Gyro", rotationSupplier.get().getDegrees());
-        SmartDashboard.putBoolean("LL Front valid?", LL_front_has_pose);
-        SmartDashboard.putBoolean("LL Rear valid?", LL_rear_has_pose);
+        //SmartDashboard.putBoolean("LL Front valid?", LL_front_has_pose);
+        //SmartDashboard.putBoolean("LL Rear valid?", LL_rear_has_pose);
         
         /*if(DriverStation.isTeleop())
         {
@@ -234,11 +179,11 @@ public class Drive extends SubsystemBase
         double target_left_velocity = -1*wheelSpeeds.leftMetersPerSecond;
         double target_right_velocity = -1*wheelSpeeds.rightMetersPerSecond;
         
-        double target_left_accel = (target_left_velocity - left_prev) / (time - time_prev);
-        double target_right_accel = (target_right_velocity - right_prev) / (time - time_prev);
+        double target_left_accel = (target_left_velocity - left_prev) / (0.02);
+        double target_right_accel = (target_right_velocity - right_prev) / (0.02);
         
-        double leftFFoutput = leftFeedforward.calculate(target_left_velocity, target_left_accel, 0.02);
-        double rightFFoutput = rightFeedforward.calculate(target_right_velocity, target_right_accel, 0.02);
+        double leftFFoutput = leftFeedforward.calculate(target_left_velocity, target_left_accel);
+        double rightFFoutput = rightFeedforward.calculate(target_right_velocity, target_right_accel);
 
         double leftPIDoutput = leftPIDcontroller.calculate(getLeftEncoderVelocity(), target_left_velocity);
         double rightPIDoutput = rightPIDcontroller.calculate(getRightEncoderVelocity(), target_right_velocity);
@@ -250,7 +195,6 @@ public class Drive extends SubsystemBase
 
         left_prev = target_left_velocity;
         right_prev = target_right_velocity;
-        time_prev = time;
     };
 
     ChassisSpeeds turnToAngle_speeds = new ChassisSpeeds(0,0,0);

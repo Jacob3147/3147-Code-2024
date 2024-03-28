@@ -47,7 +47,7 @@ public class Vision extends SubsystemBase
         angularspeed = Math.abs(speeds.omegaRadiansPerSecond);
 
         trust = (linearspeed < 2) && (angularspeed < 0.5) && DriverStation.isTeleop();
-
+        
         if(trust)
         {
             LL_1_hastarget = Evaluate_Limelight(LL1);
@@ -70,7 +70,7 @@ public class Vision extends SubsystemBase
         double timestamp = LL_PoseEstimate.timestampSeconds;
 
         double poseDiff = LL_pose.getTranslation().getDistance(drive.m_odometry.getEstimatedPosition().getTranslation());
-
+        SmartDashboard.putNumber("numTags" + LL, numTags);
         for(RawFiducial tag : LL_PoseEstimate.rawFiducials)
         {
             AvgAmbiguity += tag.ambiguity;
@@ -106,6 +106,7 @@ public class Vision extends SubsystemBase
         {
             return false;
         }
+        
 
         Drive.m_odometry.addVisionMeasurement(LL_pose, timestamp, VecBuilder.fill(confidence, confidence, 90));
         drive.field.getObject("LL"+LL).setPose(LL_pose);
