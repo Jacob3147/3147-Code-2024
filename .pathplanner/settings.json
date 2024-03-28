@@ -3,13 +3,19 @@
   "robotLength": 0.94,
   "holonomicMode": false,
   "pathFolders": [
-    "3 centerline, source side",
-    "3 close center",
-    "4 close, long shot",
-    "4 close, subwoofer",
-    "amp side close and center"
+    "amp sub - 2C, 2F",
+    "amp sub - 2C, 1F",
+    "center sub - 3C",
+    "source sub - 1C, 1F",
+    "source sub - 1C, 3F",
+    "source sub - 4C",
+    "stay out of the way"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "state - stay out of the way",
+    "columbus",
+    "state - ambitious"
+  ],
   "defaultMaxVel": 1.0,
   "defaultMaxAccel": 1.5,
   "defaultMaxAngVel": 540.0,

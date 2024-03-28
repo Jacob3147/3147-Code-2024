@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 2.0255780682501534,
-        "y": 6.665668032190766
+        "x": 4.49,
+        "y": 6.51
       },
       "prevControl": {
-        "x": 3.500328714917685,
-        "y": 7.5171157150318395
+        "x": 5.964750646667532,
+        "y": 7.3614476828410735
       },
       "nextControl": null,
       "isLocked": false,
@@ -43,7 +43,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "amp side close and center",
+  "folder": "amp sub - 2C, 1F",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0

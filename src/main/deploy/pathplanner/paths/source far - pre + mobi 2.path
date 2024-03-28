@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.8,
-        "y": 4.4
+        "x": 1.06,
+        "y": 3.31
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.323946116222264,
-        "y": 3.473173657297507
+        "x": 1.734536931626497,
+        "y": 2.5061181883966475
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.7272273347965497,
-        "y": 4.116342363738859
+        "x": 1.35,
+        "y": 1.63
       },
       "prevControl": {
-        "x": 2.095310026502955,
-        "y": 4.116342363738859
+        "x": 1.35,
+        "y": 2.068016070982464
+      },
+      "nextControl": {
+        "x": 1.35,
+        "y": 1.1919839290175358
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.7143220000725723,
+        "y": 0.8502485576399728
+      },
+      "prevControl": {
+        "x": 1.7143220000725723,
+        "y": 0.8502485576399728
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "4 close pickup first note"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -43,7 +59,10 @@
     "rotateFast": false
   },
   "reversed": true,
-  "folder": "4 close, subwoofer",
-  "previewStartingState": null,
+  "folder": "stay out of the way",
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
   "useDefaultConstraints": true
 }

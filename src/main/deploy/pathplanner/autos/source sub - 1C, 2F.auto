@@ -20,7 +20,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 1.0
           }
         },
         {
@@ -36,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "B10 shoot starting"
+                  "pathName": "F10 - grab first"
                 }
               },
               {
@@ -51,7 +51,38 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B11 return"
+            "pathName": "F20 shoot first"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "F30 grab second"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "F40 shoot second"
           }
         },
         {
@@ -63,6 +94,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "state - ambitious",
   "choreoAuto": false
 }
