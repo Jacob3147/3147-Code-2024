@@ -3,37 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.07,
-        "y": 5.55
+        "x": 3.8577597155194314,
+        "y": 2.0523241046482092
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8713254468799203,
-        "y": 5.5270125699014265
+        "x": 4.666776709894378,
+        "y": 1.4645388523557359
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "far shot source"
     },
     {
       "anchor": {
-        "x": 1.52342385444866,
-        "y": 5.5086133925236975
+        "x": 8.284915998403426,
+        "y": 2.4627889255778523
       },
       "prevControl": {
-        "x": 1.72342385444866,
-        "y": 5.5086133925236975
+        "x": 6.804310751478646,
+        "y": 1.817772778402701
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "fender"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.5,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
@@ -42,8 +42,11 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": false,
-  "folder": "4 close, subwoofer",
-  "previewStartingState": null,
-  "useDefaultConstraints": true
+  "reversed": true,
+  "folder": "source sub - 1C, 3F",
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
 }

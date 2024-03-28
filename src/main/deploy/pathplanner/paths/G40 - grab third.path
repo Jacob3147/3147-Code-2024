@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.52342385444866,
-        "y": 5.5086133925236975
+        "x": 4.49,
+        "y": 6.51
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.72342385444866,
-        "y": 5.5086133925236975
+        "x": 5.910083820167641,
+        "y": 7.051199245255634
       },
       "isLocked": false,
-      "linkedName": "fender"
+      "linkedName": "amp center shoot second"
     },
     {
       "anchor": {
-        "x": 3.066357813627308,
-        "y": 5.55472336015897
+        "x": 8.314234914184114,
+        "y": 5.746507493014986
       },
       "prevControl": {
-        "x": 2.3351259473631,
-        "y": 5.45722577799041
+        "x": 7.4070136721311925,
+        "y": 6.131600062996849
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,8 +32,8 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.5,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
@@ -42,8 +42,11 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": true,
-  "folder": "4 close, subwoofer",
-  "previewStartingState": null,
-  "useDefaultConstraints": true
+  "reversed": false,
+  "folder": "amp sub - 2C, 2F",
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
 }

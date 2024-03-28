@@ -20,7 +20,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.75
+            "waitTime": 1.0
           }
         },
         {
@@ -36,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "D10 grab first note"
+                  "pathName": "G10 - first note"
                 }
               },
               {
@@ -49,21 +49,9 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.25
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "aim"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.25
           }
         },
         {
@@ -79,7 +67,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "D20 grab second note"
+                  "pathName": "G20 - grab second"
                 }
               },
               {
@@ -94,13 +82,38 @@
         {
           "type": "path",
           "data": {
-            "pathName": "D30 shoot second note"
+            "pathName": "G30 - shoot second"
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 0.5
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "G40 - grab third"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "G50 - shoot third"
           }
         },
         {
@@ -112,6 +125,6 @@
       ]
     }
   },
-  "folder": "columbus",
+  "folder": "state - ambitious",
   "choreoAuto": false
 }

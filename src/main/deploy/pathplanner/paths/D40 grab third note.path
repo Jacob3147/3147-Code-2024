@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.0255780682501534,
-        "y": 6.665668032190766
+        "x": 4.49,
+        "y": 6.51
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8916034720345922,
-        "y": 7.165668032190766
+        "x": 5.3560254037844395,
+        "y": 7.01
       },
       "isLocked": false,
       "linkedName": "amp center shoot second"
@@ -55,7 +55,7 @@
     "rotateFast": false
   },
   "reversed": true,
-  "folder": "amp side close and center",
+  "folder": "amp sub - 2C, 1F",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0
