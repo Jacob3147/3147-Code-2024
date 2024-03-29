@@ -51,7 +51,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.2
           }
         },
         {
@@ -81,20 +81,20 @@
                 "data": {
                   "name": "intake"
                 }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0
-                }
               }
             ]
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "E40_scootch"
+          }
+        },
+        {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.2
           }
         },
         {
@@ -106,19 +106,13 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.2
           }
         },
         {
           "type": "named",
           "data": {
             "name": "shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "E40_scootch"
           }
         }
       ]

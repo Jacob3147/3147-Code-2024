@@ -3,25 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.96,
-        "y": 4.12
+        "x": 8.27,
+        "y": 0.76
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.549146473707247,
-        "y": 3.7798561248130023
+        "x": 7.220606823371345,
+        "y": 0.76
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.9195544105373927,
-        "y": 5.55593454044051
+        "x": 2.8462571210880245,
+        "y": 0.967524220759718
       },
       "prevControl": {
-        "x": 2.7389214892389893,
-        "y": 4.8881565569398955
+        "x": 4.628137136814562,
+        "y": 0.6198403152521007
+      },
+      "nextControl": {
+        "x": 1.6441815740797876,
+        "y": 1.2020755470052278
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.1604194636960707,
+        "y": 3.1517834464240364
+      },
+      "prevControl": {
+        "x": 1.8933923582156416,
+        "y": 1.9936862730838225
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,11 +48,11 @@
   "constraintZones": [
     {
       "name": "New Constraints Zone",
-      "minWaypointRelativePos": 0.9,
-      "maxWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 1.8,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 1.0,
-        "maxAcceleration": 1.0,
+        "maxAcceleration": 1.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0
       }
@@ -44,18 +60,18 @@
   ],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 2.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 0.0,
+    "velocity": 0,
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": true,
-  "folder": "source sub - 4C",
+  "reversed": false,
+  "folder": "stay out of the way",
   "previewStartingState": {
     "rotation": 0,
     "velocity": 0
