@@ -96,4 +96,9 @@ public class Intake extends SubsystemBase
     {
         return new Trigger(() -> haveNote());
     }
+
+    public Trigger unNoted()
+    {
+        return new Trigger(() -> !haveNote());
+    }
 }

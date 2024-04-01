@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.8577597155194314,
-        "y": 2.0523241046482092
+        "x": 4.469656346720101,
+        "y": 1.719040703038672
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.666776709894378,
-        "y": 1.4645388523557359
+        "x": 5.347427071589337,
+        "y": 1.1705486790646524
       },
       "isLocked": false,
       "linkedName": "far shot source"
@@ -32,8 +32,8 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.5,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },

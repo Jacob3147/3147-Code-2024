@@ -55,6 +55,12 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "shoot"
@@ -120,6 +126,25 @@
           "type": "named",
           "data": {
             "name": "shoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "G60 grab fourth"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
           }
         }
       ]

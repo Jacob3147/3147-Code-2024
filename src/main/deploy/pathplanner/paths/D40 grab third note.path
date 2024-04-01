@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.49,
-        "y": 6.51
+        "x": 5.498741937654815,
+        "y": 6.782609576615164
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.3560254037844395,
-        "y": 7.01
+        "x": 6.364767341439254,
+        "y": 7.282609576615164
       },
       "isLocked": false,
       "linkedName": "amp center shoot second"

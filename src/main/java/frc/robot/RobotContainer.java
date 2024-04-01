@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.ShooterState;
+import frc.robot.utility.LED;
 import frc.robot.utility.Vision;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drive;
@@ -23,6 +24,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -32,6 +34,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 
@@ -55,6 +58,7 @@ public class RobotContainer {
     private final Intake m_IntakeSubsystem = new Intake();
     private final Shooter m_ShooterSubsystem = new Shooter(angleOffset);   
     private final Vision m_visionSubsystem = new Vision(m_DriveSubsystem); 
+    public final LED m_LED = new LED();
     
 
 
@@ -172,9 +176,20 @@ public class RobotContainer {
                     Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, rumble_intensity)),
                     Commands.waitSeconds(rumble_time),
                     Commands.runOnce(() -> m_driverController.getHID().setRumble(RumbleType.kBothRumble, 0))
+                ),
+                Commands.sequence(
+                    Commands.run(() -> m_LED.flashOrange()),
+                    Commands.waitSeconds(3),
+                    Commands.run(() -> m_LED.LED_Orange())
                 )
+            )
+        );
 
-        ));
+        m_IntakeSubsystem.unNoted().or(() -> DriverStation.isEnabled()).onTrue(
+            Commands.run(() -> m_LED.LED_alliance())
+        );
+
+        new Trigger(() -> DriverStation.isDisabled()).whileTrue(Commands.run(() -> m_LED.LED_prematch()));
         
         /*
         m_driverController.povUp().onTrue(Commands.runOnce(() -> m_ClimberSubsystem.Up()));

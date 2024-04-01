@@ -159,4 +159,19 @@ public final class Constants
 
         public static final double climbSpeed = 0.4;
     }
+
+    public static final class LEDConstants
+    {
+        public static final int led_pwm_port = 0;
+        public static final int led_length = 54;
+        public static final int[] color_orange = {255, 35, 0};
+        public static final int[] color_red = {255, 0, 0};
+        public static final int[] color_white = {255, 255, 255};
+        public static final int[] color_off = {0, 0, 0};
+        public static final int[] color_green = {0, 255, 0};
+        public static final int[] color_blue = {0, 0, 255};
+
+        public static final int climber_1_idx = 10;
+        public static final int climber_2_idx = led_length - 10;
+    }
 }
