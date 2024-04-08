@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.LEDConstants.*;
 
+import java.util.function.BooleanSupplier;
+
 public class LED extends SubsystemBase
 {
     AddressableLED m_led;
@@ -13,64 +15,41 @@ public class LED extends SubsystemBase
     int m_rainbowFirstPixelHue = 0;
     int flashBuffer = 0;
 
-    public LED()
+    public boolean flashing_note = false;
+    public boolean holding_note = false;
+    
+    public LED(BooleanSupplier haveNote)
     {
         m_led = new AddressableLED(led_pwm_port);
         m_ledBuffer = new AddressableLEDBuffer(led_length);
         m_led.setLength(m_ledBuffer.getLength());
         m_led.setData(m_ledBuffer);
         m_led.start();
+
+        holding_note = haveNote.getAsBoolean();
+        
     }
 
-    public void LED_prematch()
+    @Override
+    public void periodic() 
     {
-        var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-            if (alliance.get() == DriverStation.Alliance.Blue)
-            {
-                for (var i = 0; i < climber_1_idx; i++)
-                {
-                    m_ledBuffer.setRGB(i, color_blue[0], color_blue[2], color_blue[1]);
-                }
-                for (var i = climber_2_idx; i < led_length; i++)
-                {
-                    m_ledBuffer.setRGB(i, color_blue[0], color_blue[2], color_blue[1]);
-                }
-                
-            }
-            else
-            {
-                for (var i = 0; i < climber_1_idx; i++)
-                {
-                    m_ledBuffer.setRGB(i, color_red[0], color_red[2], color_red[1]);
-                }
-                for (var i = climber_2_idx; i < led_length; i++)
-                {
-                    m_ledBuffer.setRGB(i, color_red[0], color_red[2], color_red[1]);
-                }
-            }
-        }
-        else
+        if (DriverStation.isDisabled())
         {
-            for (var i = 0; i < climber_1_idx; i++)
-            {
-                m_ledBuffer.setRGB(i, color_off[0], color_off[2], color_off[1]);
-            }
-            for (var i = climber_2_idx; i < led_length; i++)
-            {
-                m_ledBuffer.setRGB(i, color_off[0], color_off[2], color_off[1]);
-            }
+            rainbow();
+        }
+        else if (flashing_note)
+        {
+            flashOrange();
+        }
+        else if (holding_note)
+        {
+            LED_Orange();
+        }
+        else 
+        {
+            LED_alliance();
         }
         
-        for(var i = climber_1_idx; i < climber_2_idx; i++)
-        {
-            final var hue = (m_rainbowFirstPixelHue + (i * 180 / (climber_2_idx - climber_1_idx))) % 180;
-            m_ledBuffer.setHSV(i, hue, 255, 128);
-        }
-
-        m_rainbowFirstPixelHue += 1;
-        m_rainbowFirstPixelHue %= 180;
-        m_led.setData(m_ledBuffer);
     }
 
     public void LED_alliance()
@@ -99,6 +78,7 @@ public class LED extends SubsystemBase
                 m_ledBuffer.setRGB(i, color_off[0], color_off[2], color_off[1]);
             }
         }
+        m_led.setData(m_ledBuffer);
     }
 
     public void rainbow() 
@@ -107,7 +87,7 @@ public class LED extends SubsystemBase
         for (var i = 0; i < m_ledBuffer.getLength(); i++) {
             // Calculate the hue - hue is easier for rainbows because the color
             // shape is a circle so only one value needs to precess
-            final var hue = (m_rainbowFirstPixelHue + (i * 180 / m_ledBuffer.getLength())) % 180;
+            int hue = (m_rainbowFirstPixelHue + (i * 180 / m_ledBuffer.getLength())) % 180;
             // Set the value
             m_ledBuffer.setHSV(i, hue, 255, 128);
         }

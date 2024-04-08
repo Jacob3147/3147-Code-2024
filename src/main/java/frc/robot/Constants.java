@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.util.Units;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -21,7 +19,7 @@ public final class Constants
     public static final int kOperatorControllerPort = 1;
     
     public static final double amptrap_handoff_shooter_speed = 0.03;
-    public static final double amptrap_handoff_feed_time = 0.3;
+    public static final double amptrap_handoff_feed_time = 0.4;
     public static final double speaker_feed_time = 1;
     public static final double amp_deposit_speed = 0.4;
     public static final double trap_deposit_speed = 1;
@@ -51,13 +49,14 @@ public final class Constants
         public static final double kDriveControllerDeadband = 0.08;
 
         //Drive feedforward constants
-        public static final double Ks_r = 0.4;
+        public static final double Ks_r = .4; //.4
         public static final double Kv_r = 12 / kMaxSpeed;
-        public static final double Ka_r = 0.2;
+        public static final double Ka_r = .3; //.2
 
-        public static final double Ks_l = 0.3;
+        public static final double Ks_l = .3; //.3
         public static final double Kv_l = 12 / kMaxSpeed;
-        public static final double Ka_l = 0.2;
+        public static final double Ka_l = .3
+        ; //.2
         
         //Drive feedback constants
         public static final double Kp_auto = 1; //1 //PID
@@ -77,8 +76,8 @@ public final class Constants
     public static final class IntakeConstants
     {
         public static final int intake_motor_port = 8;
-        public static final int intake_solenoid_port_a = 15;
-        public static final int intake_solenoid_port_b = 0;
+        public static final int intake_solenoid_port_a = 0;
+        public static final int intake_solenoid_port_b = 15;
         public static final int intake_sensor_port = 1;
         public static final double intake_fwd_speed = 1;
         public static final double intake_reverse_speed = -0.5;
@@ -89,10 +88,10 @@ public final class Constants
         public static final int top_motor_port = 5;
         public static final int bottom_motor_port = 7;
         public static final int tilt_moter_port = 6;
-        public static final int stage_1_port_a = 12;
+        public static final int stage_1_port_a = 10;
         public static final int stage_1_port_b = 9;
-        public static final int stage_2_port_a = 11;
-        public static final int stage_2_port_b = 10;
+        public static final int stage_2_port_a = 12;
+        public static final int stage_2_port_b = 11;
         public static final int encoder_port = 0;
 
         public static final int tilt_offset = -94;
@@ -114,22 +113,22 @@ public final class Constants
         public static final double shot_power = 1;
 
         public static final double distance_1 = 1.3;
-        public static final double angle_1 = -48;
+        public static final double angle_1 = -55;
 
         public static final double distance_2 = 1.5;
-        public static final double angle_2 = -43;
+        public static final double angle_2 = -45;
 
         public static final double distance_3 = 2;
         public static final double angle_3 = -32;
 
         public static final double distance_4 = 2.5;
-        public static final double angle_4 = -26;
+        public static final double angle_4 = -25;
 
         public static final double distance_5 = 3;
         public static final double angle_5 = -20;
 
         public static final double distance_6 = 3.5;
-        public static final double angle_6 = -17;
+        public static final double angle_6 = -20;
 
         public static final double distance_7 = 4;
         public static final double angle_7 = -15;
@@ -139,6 +138,15 @@ public final class Constants
 
         public static final double distance_9 = 5;
         public static final double angle_9 = -9;
+
+        public static final double distance_10 = 5.5;
+        public static final double angle_10 = -8;
+
+        public static final double distance_11 = 6;
+        public static final double angle_11 = -7;
+
+        public static final double angle_pass = -30;
+        public static final double power_pass = 0.55;
     }
 
     public static final class LimelightConstants
@@ -153,25 +161,18 @@ public final class Constants
         public static final int left_climb_port = 10;
         public static final int right_climb_port = 9;
 
-        public static final double climber_rotations_per_mm = 1;
-        public static final int left_limit_port = 2;
-        public static final int right_limit_port = 3;
-
         public static final double climbSpeed = 0.4;
     }
 
     public static final class LEDConstants
     {
         public static final int led_pwm_port = 0;
-        public static final int led_length = 54;
+        public static final int led_length = 16;
         public static final int[] color_orange = {255, 35, 0};
         public static final int[] color_red = {255, 0, 0};
         public static final int[] color_white = {255, 255, 255};
         public static final int[] color_off = {0, 0, 0};
         public static final int[] color_green = {0, 255, 0};
         public static final int[] color_blue = {0, 0, 255};
-
-        public static final int climber_1_idx = 10;
-        public static final int climber_2_idx = led_length - 10;
     }
 }

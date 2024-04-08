@@ -42,7 +42,7 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": true,
+  "reversed": false,
   "folder": "stay out of the way",
   "previewStartingState": {
     "rotation": 0,

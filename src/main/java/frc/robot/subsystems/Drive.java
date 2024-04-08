@@ -4,10 +4,7 @@ import static frc.robot.Constants.DriveConstants.*;
 
 import java.util.function.Supplier;
 
-import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkMax;
@@ -15,10 +12,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -31,8 +25,6 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -172,7 +164,6 @@ public class Drive extends SubsystemBase
     //Controls the robot using chassis speeds
     public void setDriveMotors(ChassisSpeeds speeds)
     {
-        double time = Timer.getFPGATimestamp();
         //Convert the chassis speeds to wheel speeds
         DifferentialDriveWheelSpeeds wheelSpeeds = m_kinematics.toWheelSpeeds(speeds);
 
@@ -181,6 +172,9 @@ public class Drive extends SubsystemBase
         
         double target_left_accel = (target_left_velocity - left_prev) / (0.02);
         double target_right_accel = (target_right_velocity - right_prev) / (0.02);
+
+        if(Math.abs(target_left_accel) < 0.3 || Math.abs(target_left_velocity) < 0.1 ) target_left_accel = 0;
+        if(Math.abs(target_right_accel) < 0.3 || Math.abs(target_right_velocity) < 0.1 ) target_right_accel = 0;
         
         double leftFFoutput = leftFeedforward.calculate(target_left_velocity, target_left_accel);
         double rightFFoutput = rightFeedforward.calculate(target_right_velocity, target_right_accel);
@@ -252,23 +246,23 @@ public class Drive extends SubsystemBase
         double xToSpeaker;
         double yToSpeaker;
         var alliance = DriverStation.getAlliance();
-                if (alliance.isPresent()) {
-                    if (alliance.get() == DriverStation.Alliance.Blue)
-                    {
-                        yToSpeaker = blue_speaker_y - currentY;
-                        xToSpeaker = blue_speaker_x - currentX;
-                    }
-                    else
-                    {
-                        yToSpeaker = red_speaker_y - currentY;
-                        xToSpeaker = red_speaker_x - currentX;
-                    }
-                }
-                else
-                {
-                    xToSpeaker = 1;
-                    yToSpeaker = 0;
-                }
+        if (alliance.isPresent()) {
+            if (alliance.get() == DriverStation.Alliance.Blue)
+            {
+                yToSpeaker = blue_speaker_y - currentY;
+                xToSpeaker = blue_speaker_x - currentX;
+            }
+            else
+            {
+                yToSpeaker = red_speaker_y - currentY;
+                xToSpeaker = red_speaker_x - currentX;
+            }
+        }
+        else
+        {
+            xToSpeaker = 1;
+            yToSpeaker = 0;
+        }
 
                 
         return Math.sqrt(xToSpeaker*xToSpeaker + yToSpeaker*yToSpeaker);

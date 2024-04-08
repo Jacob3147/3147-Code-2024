@@ -99,7 +99,7 @@ public class Shooter extends SubsystemBase
                 break;
             case SPEAKER:
                 lift_speaker();
-                spinUp(shot_power);
+                spinUp(calcShooterSpeed());
                 TiltToAngle(target_speaker_angle);
                 break;
             case AMP:
@@ -179,10 +179,22 @@ public class Shooter extends SubsystemBase
         stage2.set(Value.kForward);
     }
 
-
+    private double calcShooterSpeed()
+    {
+        double distance = Drive.DistanceToSpeaker();
+        if(distance < distance_11)
+        {
+            return shot_power;
+        }
+        else
+        {
+            return power_pass;
+        }
+    }
     private double calcTiltAngle_Speaker()
     {
         double distance = Drive.DistanceToSpeaker();
+        if(distance < distance_1) return angle_1;
 
         if((distance_1 < distance) && (distance <= distance_2))
         {
@@ -232,7 +244,19 @@ public class Shooter extends SubsystemBase
                                         distance_8, distance_9, 
                                         angle_8, angle_9);
         }
-        return angle_1;
+        if((distance_9 < distance) && (distance <= distance_10))
+        {
+            return linear_interpolation(distance, 
+                                        distance_9, distance_10, 
+                                        angle_9, angle_10);
+        }
+        if((distance_10 < distance) && (distance <= distance_11))
+        {
+            return linear_interpolation(distance, 
+                                        distance_10, distance_11, 
+                                        angle_10, angle_11);
+        }
+        return angle_pass;
     }
 
     private double linear_interpolation(double input, double X1, double X2, double Y1, double Y2)

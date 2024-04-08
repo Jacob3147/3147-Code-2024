@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import static frc.robot.Constants.IntakeConstants.*;
 
+import java.util.function.BooleanSupplier;
+
 public class Intake extends SubsystemBase
 {
     CANSparkMax intake = new CANSparkMax(intake_motor_port, MotorType.kBrushless);
@@ -50,13 +52,13 @@ public class Intake extends SubsystemBase
 
         if(DriverStation.isAutonomousEnabled())
         {
-            haveNoteMin = 5;
+            haveNoteMin = 6;
             intake_speed = 0.7;
         }
         else
         {
             intake_speed = intake_fwd_speed;
-            haveNoteMin = 2;
+            haveNoteMin = 4;
         }
 
         haveNote = haveNoteCounts >= haveNoteMin;
@@ -96,9 +98,10 @@ public class Intake extends SubsystemBase
     {
         return new Trigger(() -> haveNote());
     }
-
-    public Trigger unNoted()
+    
+    public BooleanSupplier haveNoteSupplier()
     {
-        return new Trigger(() -> !haveNote());
+        return () -> haveNote();
     }
+
 }
